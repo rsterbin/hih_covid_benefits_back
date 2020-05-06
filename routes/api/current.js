@@ -21,7 +21,8 @@ router.post('/', function(req, res, next) {
         return;
     }
     const info = JSON.parse(process.env.GOOGLE_AUTH);
-    res.json({ msg: 'Nah, not actually done', env: info });
+    console.log(info);
+    res.json({ msg: 'Nah, not actually done, but I think we can parse it' });
 });
 
 module.exports = router;
