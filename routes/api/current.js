@@ -20,9 +20,7 @@ router.post('/', function(req, res, next) {
         throw new Error('Answers are required');
         return;
     }
-    console.log(req.body.answers.type);
-    console.log(req.body.answers.books);
-    throw new Error('This endpoint is not implemented');
+    throw new Error('This endpoint is not implemented, but we know the env is this: ' + process.env.GOOGLE_AUTH);
 });
 
 module.exports = router;
