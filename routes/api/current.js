@@ -1,9 +1,28 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
+/* GET just tells you where you are */
 router.get('/', function(req, res, next) {
-  res.json({ msg: 'This is version 1.0 of the HIH NYC COVID Benefits API' });
+    res.json({ msg: 'This is version 1.0 of the HIH NYC COVID Benefits API' });
+});
+
+/* POST passes the info you send over to Google Sheets */
+router.post('/', function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        throw new Error('No data was provided');
+        return;
+    }
+    if (typeof(req.body.visitor_id) === 'undefined') {
+        throw new Error('Visitor ID is required');
+        return;
+    }
+    if (typeof(req.body.answers) !== 'object') {
+        throw new Error('Answers are required');
+        return;
+    }
+    console.log(req.body.answers.type);
+    console.log(req.body.answers.books);
+    throw new Error('This endpoint is not implemented');
 });
 
 module.exports = router;

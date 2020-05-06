@@ -35,7 +35,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.json({ msg: 'That endpoint does not exist' });
+  res.json({ msg: err.message });
 });
 
 module.exports = app;
