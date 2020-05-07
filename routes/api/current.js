@@ -22,7 +22,12 @@ router.post('/', function(req, res, next) {
     }
     if (process.env.GOOGLE_AUTH) {
         const info = JSON.parse(process.env.GOOGLE_AUTH);
-        console.log(info);
+        if (info.client_id) {
+            console.log('Google Auth specs are present');
+        } else {
+            console.log('Something is wrong with the Google Auth specs:');
+            console.log(info);
+        }
     } else {
         console.log('Google Auth specs are missing');
     }
