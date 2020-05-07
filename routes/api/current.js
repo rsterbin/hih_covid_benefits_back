@@ -20,8 +20,12 @@ router.post('/', function(req, res, next) {
         throw new Error('Answers are required');
         return;
     }
-    const info = JSON.parse(process.env.GOOGLE_AUTH);
-    console.log(info);
+    if (process.env.GOOGLE_AUTH) {
+        const info = JSON.parse(process.env.GOOGLE_AUTH);
+        console.log(info);
+    } else {
+        console.log('Google Auth specs are missing');
+    }
     res.json({ msg: 'Nah, not actually done, but I think we can parse it' });
 });
 
