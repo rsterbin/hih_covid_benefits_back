@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var currentApiRouter = require('./routes/api/current');
 
 require('dotenv').config();
+require('./config').bootstrap();
 
 var app = express();
 
