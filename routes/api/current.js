@@ -36,7 +36,7 @@ router.post('/', async function(req, res, next) {
         [ req.body.visitor_id, config.get('env_flag') ]
     );
     const response_id = sth1.rows[0].response_id;
-    for (var key in Object.keys(req.body.answers)) {
+    for (var key in req.body.answers) {
         await db.query(`
             INSERT INTO answers (response_id, question_code, answer)
             VALUES ($1, $2, $3)`,
