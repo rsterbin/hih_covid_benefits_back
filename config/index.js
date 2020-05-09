@@ -19,6 +19,8 @@ class ConfigFetcher {
             console.log('Environment flag is missing');
             throw new Error('Cannot proceed; please try again');
         }
+        this.vals.prelaunch_username = process.env.PRELAUNCH_USERNAME;
+        this.vals.prelaunch_password = process.env.PRELAUNCH_PASSWORD;
         this.vals.env_flag = process.env.HNCT_ENV;
         this.fetched = true;
     }

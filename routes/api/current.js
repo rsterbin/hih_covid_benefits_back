@@ -6,13 +6,41 @@ const config = require('../../config');
 
 const router = new Router();
 
-/* GET just tells you where you are */
+// index GET: What is this?
 router.get('/', function(req, res, next) {
     res.json({ msg: 'This is version 1.0 of the HIH NYC COVID Benefits API' });
 });
 
-/* POST passes the info you send to the database */
-router.post('/', async function(req, res, next) {
+// login POST: Check whether the prelaunch credentials are correct
+router.post('/login', function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ msg: 'No data was provided' });
+        return next();
+    }
+    if (typeof(req.body.username) === 'undefined') {
+        res.status(400);
+        res.json({ msg: 'Username is required' });
+        return next();
+    }
+    if (typeof(req.body.password) === 'undefined') {
+        res.status(400);
+        res.json({ msg: 'Password is required' });
+        return next();
+    }
+    const correct_username = config.get('prelaunch_username');
+    const correct_password = config.get('prelaunch_password');
+    if (req.body.username === correct_username && req.body.password === correct_password) {
+        res.json({ msg: 'Login successful' });
+    } else {
+        res.status(403);
+        res.json({ msg: 'Password incorrect' });
+    }
+});
+
+// record POST: Save a quiz response
+router.post('/record', async function(req, res, next) {
+    // TODO: Security
     if (typeof(req.body) !== 'object') {
         res.status(400);
         res.json({ msg: 'No data was provided' });
