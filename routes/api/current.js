@@ -1,5 +1,6 @@
 const express = require('express');
 const Router = require('express-promise-router');
+const { v4: uuidv4 } = require('uuid');
 
 const db = require('../../database');
 const config = require('../../config');
@@ -12,7 +13,7 @@ router.get('/', function(req, res, next) {
 });
 
 // login POST: Check whether the prelaunch credentials are correct
-router.post('/login', function(req, res, next) {
+router.post('/login', async function(req, res, next) {
     if (typeof(req.body) !== 'object') {
         res.status(400);
         res.json({ msg: 'No data was provided' });
@@ -31,10 +32,45 @@ router.post('/login', function(req, res, next) {
     const correct_username = config.get('prelaunch_username');
     const correct_password = config.get('prelaunch_password');
     if (req.body.username === correct_username && req.body.password === correct_password) {
-        res.json({ msg: 'Login successful' });
+        const token = uuidv4();
+        const sth = await db.query(`
+            INSERT INTO prelaunch_sessions (token, expires)
+            SELECT $1, NOW() + INTERVAL '1 year'`,
+            [ token ]
+        );
+        res.json({ msg: 'Login successful', token: token });
     } else {
         res.status(403);
         res.json({ msg: 'Password incorrect' });
+    }
+});
+
+// session POST: Check whether the prelaunch session token is valid
+router.post('/session', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ msg: 'No data was provided' });
+        return next();
+    }
+    if (typeof(req.body.token) === 'undefined') {
+        res.status(403);
+        res.json({ msg: 'Token is required' });
+        return next();
+    }
+    const sth1 = await db.query(`
+        DELETE FROM prelaunch_sessions
+        WHERE expires < NOW()`
+    );
+    const sth2 = await db.query(`
+        SELECT session_id FROM prelaunch_sessions
+        WHERE token = $1 AND expires >= NOW()`,
+        [ req.body.token ]
+    );
+    if (sth2.rows.length > 0) {
+        res.json({ msg: 'Valid session', session_id: sth2.rows[0].session_id });
+    } else {
+        res.status(403);
+        res.json({ msg: 'Invalid session' });
     }
 });
 

@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS prelaunch_sessions;
+DROP TABLE IF EXISTS raw_contacts;
+DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS answers;
+DROP TABLE IF EXISTS responses;
+
 CREATE TABLE responses (
     response_id serial NOT NULL,
     visitor_id text NOT NULL,
@@ -37,4 +43,11 @@ CREATE TABLE raw_contacts (
     CONSTRAINT raw_contacts_pkey PRIMARY KEY (raw_id)
 );
 CREATE INDEX raw_contacts_env_flag_idx ON raw_contacts (env_flag);
+
+CREATE TABLE prelaunch_sessions (
+    session_id serial NOT NULL,
+    token text NOT NULL,
+    expires timestamp with time zone,
+    CONSTRAINT prelaunch_sessions_pkey PRIMARY KEY (session_id)
+);
 
