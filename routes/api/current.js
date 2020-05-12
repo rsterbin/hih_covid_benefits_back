@@ -7,6 +7,10 @@ const config = require('../../config');
 
 const router = new Router();
 
+// TODO: Remove env flag from database
+// TODO: Reject cross-domain requests
+// TODO: Add an API key check
+
 // index GET: What is this?
 router.get('/', function(req, res, next) {
     res.json({ msg: 'This is version 1.0 of the HIH NYC COVID Benefits API' });
