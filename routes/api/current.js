@@ -8,8 +8,7 @@ const config = require('../../config');
 const router = new Router();
 
 // TODO: Remove env flag from database
-// TODO: Reject cross-domain requests
-// TODO: Add an API key check
+// TODO: Session check
 
 // index GET: What is this?
 router.get('/', function(req, res, next) {
