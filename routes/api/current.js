@@ -79,7 +79,6 @@ router.post('/session', async function(req, res, next) {
 
 // record POST: Save a quiz response
 router.post('/record', async function(req, res, next) {
-    // TODO: Security
     if (typeof(req.body) !== 'object') {
         res.status(400);
         res.json({ msg: 'No data was provided' });
@@ -97,10 +96,10 @@ router.post('/record', async function(req, res, next) {
     }
     await db.query('BEGIN TRANSACTION');
     const sth1 = await db.query(`
-        INSERT INTO responses (visitor_id, env_flag)
-        VALUES ($1, $2)
+        INSERT INTO responses (visitor_id)
+        VALUES ($1)
         RETURNING response_id`,
-        [ req.body.visitor_id, config.get('env_flag') ]
+        [ req.body.visitor_id ]
     );
     const response_id = sth1.rows[0].response_id;
     for (var key in req.body.answers) {
@@ -112,9 +111,9 @@ router.post('/record', async function(req, res, next) {
     }
     if (typeof(req.body.contact) === 'object' && req.body.contact.email) {
         await db.query(`
-            INSERT INTO raw_contacts (email, zip_code, env_flag)
+            INSERT INTO raw_contacts (email, zip_code)
             VALUES ($1, $2, $3)`,
-            [ req.body.contact.email, req.body.contact.zip, config.get('env_flag') ]
+            [ req.body.contact.email, req.body.contact.zip ]
         );
     }
     await db.query('COMMIT');
