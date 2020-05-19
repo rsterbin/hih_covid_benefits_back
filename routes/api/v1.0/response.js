@@ -61,7 +61,7 @@ router.post('/', async function(req, res, next) {
     if (typeof(req.body.contact) === 'object' && req.body.contact.email) {
         await db.query(`
             INSERT INTO raw_contacts (email, zip_code)
-            VALUES ($1, $2, $3)`,
+            VALUES ($1, $2)`,
             [ req.body.contact.email, req.body.contact.zip ]
         );
     }
