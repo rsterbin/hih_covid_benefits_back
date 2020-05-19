@@ -2,10 +2,10 @@ var express = require('express');
 
 var corsHeaders = function(req, res, next) {
     const prod_origin = 'https://hih-covid-benefits-back.herokuapp.com';
-    const dev_origin = 'http://localhost:3000';
+    const dev_origins = [ 'http://localhost:3000', 'http://localhost:3001', 'http://localhost2:3001' ];
     let origin = req.get('origin');
     let ok = true;
-    if (origin !== dev_origin && origin !== prod_origin) {
+    if (!dev_origins.includes(origin) && origin !== prod_origin) {
         origin = prod_origin;
         ok = false;
     }
