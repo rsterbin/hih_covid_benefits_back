@@ -1,6 +1,20 @@
 var express = require('express');
 
 var corsHeaders = function(req, res, next) {
+    if (!req.originalUrl.match('^/api')) {
+        console.log('Not checking origin');
+        console.log(req.originalUrl);
+        console.log(req.path);
+        console.log(req.url);
+        console.log(req.baseUrl);
+        next();
+    }
+    console.log('Checking origin');
+    console.log(req.originalUrl);
+    console.log(req.path);
+    console.log(req.url);
+    console.log(req.baseUrl);
+
     const prod_origin = 'https://hih-covid-benefits-back.herokuapp.com';
     const dev_origins = [ 'http://localhost:3000', 'http://localhost:3001', 'http://localhost2:3001' ];
     let origin = req.get('origin');
