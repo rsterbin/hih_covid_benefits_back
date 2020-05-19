@@ -38,9 +38,16 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   console.log(err);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.json({ code: 'UNEXPECTED', msg: err.message });
+  // If we're within the API, send json
+  if (req.originalUrl.match('^/api')) {
+    res.status(err.status || 500);
+    res.json({ code: 'UNEXPECTED', msg: err.message });
+  }
+
+  // Otherwise, let React handle it
+  else {
+    res.sendFile(path.join(__dirname, 'public') + '/index.html');
+  }
 });
 
 module.exports = app;

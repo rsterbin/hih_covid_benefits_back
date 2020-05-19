@@ -7,7 +7,7 @@ var corsHeaders = function(req, res, next) {
         console.log(req.path);
         console.log(req.url);
         console.log(req.baseUrl);
-        next();
+        return next();
     }
     console.log('Checking origin');
     console.log(req.originalUrl);
