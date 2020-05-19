@@ -1,12 +1,24 @@
 DROP TABLE IF EXISTS prelaunch_sessions;
+DROP TABLE IF EXISTS admin_sessions;
+DROP TABLE IF EXISTS error_log;
 DROP TABLE IF EXISTS raw_contacts;
 DROP TABLE IF EXISTS contacts;
 DROP TABLE IF EXISTS answers;
 DROP TABLE IF EXISTS responses;
+DROP TABLE IF EXISTS sessions;
+
+CREATE TABLE sessions (
+    session_id serial NOT NULL,
+    token text NOT NULL,
+    visitor_id text NOT NULL,
+    expires timestamp with time zone,
+    CONSTRAINT sessions_pkey PRIMARY KEY (session_id)
+);
 
 CREATE TABLE responses (
     response_id serial NOT NULL,
     visitor_id text NOT NULL,
+    submitted timestamp with time zone,
     CONSTRAINT responses_pkey PRIMARY KEY (response_id)
 );
 
@@ -36,6 +48,22 @@ CREATE TABLE raw_contacts (
     valid boolean,
     processed_at timestamp with time zone,
     CONSTRAINT raw_contacts_pkey PRIMARY KEY (raw_id)
+);
+
+CREATE TABLE error_log (
+    error_id serial NOT NULL,
+    error_time timestamp with time zone NOT NULL DEFAULT NOW(),
+    log_level text NOT NULL,
+    log_message text NOT NULL,
+    context text,
+    CONSTRAINT error_log_pkey PRIMARY KEY (error_id)
+);
+
+CREATE TABLE admin_sessions (
+    session_id serial NOT NULL,
+    token text NOT NULL,
+    expires timestamp with time zone,
+    CONSTRAINT admin_sessions_pkey PRIMARY KEY (session_id)
 );
 
 CREATE TABLE prelaunch_sessions (

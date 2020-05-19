@@ -17,6 +17,8 @@ class ConfigFetcher {
         this.vals.database_url = process.env.DATABASE_URL;
         this.vals.prelaunch_username = process.env.PRELAUNCH_USERNAME;
         this.vals.prelaunch_password = process.env.PRELAUNCH_PASSWORD;
+        this.vals.admin_username = process.env.TMP_ADMIN_USERNAME;
+        this.vals.admin_password = process.env.TMP_ADMIN_PASSWORD;
         this.fetched = true;
     }
 
