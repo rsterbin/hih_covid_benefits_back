@@ -29,13 +29,11 @@ router.post('/', async function(req, res, next) {
     }
 
     // Verify the token
-    console.log(req.body);
     const sth1 = await db.query(`
         SELECT session_id FROM sessions
         WHERE token = $1 AND visitor_id = $2 AND expires >= NOW()`,
         [ req.body.token, req.body.visitor_id ]
     );
-    console.log(sth1.rows);
     if (sth1.rows.length < 1) {
         res.status(403);
         res.json({ code: 'TOKEN_INVALID', msg: 'Your session token is invalid' });

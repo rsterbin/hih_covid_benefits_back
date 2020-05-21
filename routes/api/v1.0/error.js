@@ -15,7 +15,12 @@ const API_ERROR_CODES = [
     'USERNAME_REQUIRED',
     'PASSWORD_REQUIRED',
     'TOKEN_INVALID',
-    'LOGIN_INCORRECT'
+    'LOGIN_INCORRECT',
+    'KEY_REQUIRED',
+    'NOT_FOUND',
+    'LANGUAGE_REQUIRED',
+    'LANG_KEYS_REQUIRED',
+    'EN_TRANS_REQUIRED'
 ];
 
 // error GET: What error codes are there?

@@ -6,6 +6,7 @@ var logger = require('morgan');
 const fs = require('fs');
 
 var currentApiRouter = require('./routes/api/current');
+var downloadRouter = require('./routes/download');
 var cors = require('./middleware/cors');
 
 require('dotenv').config();
@@ -17,6 +18,9 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -25,6 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors);
 
 app.use('/api/v1.0', currentApiRouter);
+app.use('/download', downloadRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -41,7 +46,21 @@ app.use(function(err, req, res, next) {
   // If we're within the API, send json
   if (req.originalUrl.match('^/api')) {
     res.status(err.status || 500);
-    res.json({ code: 'UNEXPECTED', msg: err.message });
+    let msg = err.message;
+    if (err.status === 404) {
+        msg = 'Endpoint not found';
+    }
+    res.json({ code: 'UNEXPECTED', msg: msg });
+  }
+
+  // If we're within the download section, send json
+  if (req.originalUrl.match('^/download')) {
+    res.status(err.status || 500);
+    let msg = err.message;
+    if (err.status === 404) {
+        msg = 'Not found';
+    }
+    res.json({ code: 'UNEXPECTED', msg: msg });
   }
 
   // Otherwise, let React handle it

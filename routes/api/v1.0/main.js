@@ -4,7 +4,7 @@ const Router = require('express-promise-router');
 const errorRouter = require('./error.js');
 const sessionRouter = require('./session.js');
 const responseRouter = require('./response.js');
-const adminRouter = require('./admin.js');
+const adminRouter = require('./admin');
 const prelaunchRouter = require('./prelaunch.js');
 
 const router = new Router();
