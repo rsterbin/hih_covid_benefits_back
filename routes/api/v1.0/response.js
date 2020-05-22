@@ -43,8 +43,8 @@ router.post('/', async function(req, res, next) {
     // Insert the response and answers
     await db.query('BEGIN TRANSACTION');
     const sth2 = await db.query(`
-        INSERT INTO responses (visitor_id)
-        VALUES ($1)
+        INSERT INTO responses (visitor_id, submitted)
+        VALUES ($1, NOW())
         RETURNING response_id`,
         [ req.body.visitor_id ]
     );
