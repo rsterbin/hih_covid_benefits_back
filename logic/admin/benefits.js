@@ -13,7 +13,7 @@ module.exports = {
 
     getBenefitDetails: async (code) => {
         const sth = await db.query(`
-            SELECT name, abbreviation
+            SELECT code, name, abbreviation
             FROM benefits
             WHERE code = $1`,
             [ code ]
@@ -47,14 +47,11 @@ module.exports = {
         const sth = await db.query(`
             SELECT s.scenario_id, s.condition_map, s.help, s.enabled,
                 s.lang_key_result, s.lang_key_expanded,
-                t1.translation AS en_result,
-                t2.translation AS en_expanded
+                t.translation AS en_result
             FROM scenarios s
             JOIN benefits b USING (benefit_id)
-            LEFT JOIN language_keys k1 ON (s.lang_key_result = k1.key)
-            LEFT JOIN language_keys k2 ON (s.lang_key_result = k2.key)
-            LEFT JOIN translations t1 ON (t1.key_id = k1.key_id AND t1.language = 'en')
-            LEFT JOIN translations t2 ON (t2.key_id = k2.key_id AND t2.language = 'en')
+            LEFT JOIN language_keys k ON (s.lang_key_result = k.key)
+            LEFT JOIN translations t ON (t.key_id = k.key_id AND t.language = 'en')
             WHERE b.code = $1`,
             [ code ]
         );
@@ -71,6 +68,34 @@ module.exports = {
             };
         });
         return { ok: true, data: { scenarios: scenarios } };
+    },
+
+    getScenario: async (code, id) => {
+        const sth = await db.query(`
+            SELECT s.scenario_id, s.condition_map, s.help, s.enabled,
+                s.lang_key_result, s.lang_key_expanded,
+                t1.translation AS en_result,
+                t2.translation AS en_expanded
+            FROM scenarios s
+            JOIN benefits b USING (benefit_id)
+            LEFT JOIN language_keys k1 ON (s.lang_key_result = k1.key)
+            LEFT JOIN language_keys k2 ON (s.lang_key_result = k2.key)
+            LEFT JOIN translations t1 ON (t1.key_id = k1.key_id AND t1.language = 'en')
+            LEFT JOIN translations t2 ON (t2.key_id = k2.key_id AND t2.language = 'en')
+            WHERE b.code = $1 AND s.scenario_id = $2`,
+            [ code, id ]
+        );
+        const scenario = {
+            id: sth.rows[0].scenario_id,
+            condition_map: JSON.parse(sth.rows[0].condition_map),
+            help: sth.rows[0].help,
+            enabled: sth.rows[0].enabled,
+            lang_key_result: sth.rows[0].lang_key_result,
+            lang_key_expanded: sth.rows[0].lang_key_expanded,
+            en_result: sth.rows[0].en_result,
+            en_expanded: sth.rows[0].en_expanded
+        };
+        return { ok: true, data: { scenario: scenario } };
     }
 
 };
