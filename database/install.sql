@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS prelaunch_sessions;
-DROP TABLE IF EXISTS eligibility;
+DROP TABLE IF EXISTS scenarios;
 DROP TABLE IF EXISTS conditions;
 DROP TABLE IF EXISTS benefits;
 DROP TABLE IF EXISTS translations;
@@ -158,311 +158,312 @@ CREATE TABLE scenarios (
     benefit_id integer NOT NULL,
     condition_map text NOT NULL,
     help text NOT NULL,
-    lang_key text NOT NULL,
-    active boolean NOT NULL DEFAULT FALSE
+    enabled boolean NOT NULL DEFAULT FALSE,
+    lang_key_result text NOT NULL,
+    lang_key_expanded text NOT NULL
 );
 
-INSERT INTO scenarios (benefit_id, condition_map, help, lang_key, active) VALUES
+INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded) VALUES
 
 -- ffcra
 (1, '{"type":"N","agency":"A","books":"Y","reason":"B"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_a_books_y_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_y_reason_b', 'results_benefit_long_ffcra_type_n_agency_a_books_y_reason_b'),
 (1, '{"type":"N","agency":"A","books":"Y","reason":"Q"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_n_agency_a_books_y_reason_q', TRUE),
+[reason] SELF-QUARANTINE', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_y_reason_q', 'results_benefit_long_ffcra_type_n_agency_a_books_y_reason_q'),
 (1, '{"type":"N","agency":"A","books":"Y","reason":"S"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] YES (EITHER)
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_a_books_y_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_y_reason_s', 'results_benefit_long_ffcra_type_n_agency_a_books_y_reason_s'),
 (1, '{"type":"N","agency":"A","books":"Y","reason":"F"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] YES (EITHER)
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_n_agency_a_books_y_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_y_reason_f', 'results_benefit_long_ffcra_type_n_agency_a_books_y_reason_f'),
 (1, '{"type":"N","agency":"A","books":"Y","reason":"N"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] YES (EITHER)
-[reason] NONE', 'results_benefit_ffcra_type_n_agency_a_books_y_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_n_agency_a_books_y_reason_n', 'results_benefit_long_ffcra_type_n_agency_a_books_y_reason_n'),
 (1, '{"type":"N","agency":"A","books":"N","reason":"B"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] NO
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_a_books_n_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_n_reason_b', 'results_benefit_long_ffcra_type_n_agency_a_books_n_reason_b'),
 (1, '{"type":"N","agency":"A","books":"N","reason":"Q"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] NO
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_n_agency_a_books_n_reason_q', TRUE),
+[reason] SELF-QUARANTINE', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_n_reason_q', 'results_benefit_long_ffcra_type_n_agency_a_books_n_reason_q'),
 (1, '{"type":"N","agency":"A","books":"N","reason":"S"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] NO
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_a_books_n_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_n_reason_s', 'results_benefit_long_ffcra_type_n_agency_a_books_n_reason_s'),
 (1, '{"type":"N","agency":"A","books":"N","reason":"F"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] NO
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_n_agency_a_books_n_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', TRUE, 'results_benefit_short_ffcra_type_n_agency_a_books_n_reason_f', 'results_benefit_long_ffcra_type_n_agency_a_books_n_reason_f'),
 (1, '{"type":"N","agency":"A","books":"N","reason":"N"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] YES
 [books] NO
-[reason] NONE', 'results_benefit_ffcra_type_n_agency_a_books_n_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_n_agency_a_books_n_reason_n', 'results_benefit_long_ffcra_type_n_agency_a_books_n_reason_n'),
 (1, '{"type":"N","agency":"B","books":"Y","reason":"B"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_b_books_y_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_y_reason_b', 'results_benefit_long_ffcra_type_n_agency_b_books_y_reason_b'),
 (1, '{"type":"N","agency":"B","books":"Y","reason":"Q"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_n_agency_b_books_y_reason_q', TRUE),
+[reason] SELF-QUARANTINE', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_y_reason_q', 'results_benefit_long_ffcra_type_n_agency_b_books_y_reason_q'),
 (1, '{"type":"N","agency":"B","books":"Y","reason":"S"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] YES (EITHER)
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_b_books_y_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_y_reason_s', 'results_benefit_long_ffcra_type_n_agency_b_books_y_reason_s'),
 (1, '{"type":"N","agency":"B","books":"Y","reason":"F"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] YES (EITHER)
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_n_agency_b_books_y_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_y_reason_f', 'results_benefit_long_ffcra_type_n_agency_b_books_y_reason_f'),
 (1, '{"type":"N","agency":"B","books":"Y","reason":"N"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] YES (EITHER)
-[reason] NONE', 'results_benefit_ffcra_type_n_agency_b_books_y_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_n_agency_b_books_y_reason_n', 'results_benefit_long_ffcra_type_n_agency_b_books_y_reason_n'),
 (1, '{"type":"N","agency":"B","books":"N","reason":"B"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] NO
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_b_books_n_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_n_reason_b', 'results_benefit_long_ffcra_type_n_agency_b_books_n_reason_b'),
 (1, '{"type":"N","agency":"B","books":"N","reason":"Q"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] NO
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_n_agency_b_books_n_reason_q', TRUE),
+[reason] SELF-QUARANTINE', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_n_reason_q', 'results_benefit_long_ffcra_type_n_agency_b_books_n_reason_q'),
 (1, '{"type":"N","agency":"B","books":"N","reason":"S"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] NO
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_n_agency_b_books_n_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_n_reason_s', 'results_benefit_long_ffcra_type_n_agency_b_books_n_reason_s'),
 (1, '{"type":"N","agency":"B","books":"N","reason":"F"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] NO
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_n_agency_b_books_n_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', TRUE, 'results_benefit_short_ffcra_type_n_agency_b_books_n_reason_f', 'results_benefit_long_ffcra_type_n_agency_b_books_n_reason_f'),
 (1, '{"type":"N","agency":"B","books":"N","reason":"N"}', '[type] NANNY, HOUSE CLEANER, or HOME ATTENDANT
 [agency] NO
 [books] NO
-[reason] NONE', 'results_benefit_ffcra_type_n_agency_b_books_n_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_n_agency_b_books_n_reason_n', 'results_benefit_long_ffcra_type_n_agency_b_books_n_reason_n'),
 (1, '{"type":"E","agency":"A","books":"Y","reason":"B"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_a_books_y_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_y_reason_b', 'results_benefit_long_ffcra_type_e_agency_a_books_y_reason_b'),
 (1, '{"type":"E","agency":"A","books":"Y","reason":"Q"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_e_agency_a_books_y_reason_q', TRUE),
+[reason] SELF-QUARANTINE', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_y_reason_q', 'results_benefit_long_ffcra_type_e_agency_a_books_y_reason_q'),
 (1, '{"type":"E","agency":"A","books":"Y","reason":"S"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] YES (EITHER)
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_a_books_y_reason_s', TRUE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_y_reason_s', 'results_benefit_long_ffcra_type_e_agency_a_books_y_reason_s'),
 (1, '{"type":"E","agency":"A","books":"Y","reason":"F"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] YES (EITHER)
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_e_agency_a_books_y_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_y_reason_f', 'results_benefit_long_ffcra_type_e_agency_a_books_y_reason_f'),
 (1, '{"type":"E","agency":"A","books":"Y","reason":"N"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] YES (EITHER)
-[reason] NONE', 'results_benefit_ffcra_type_e_agency_a_books_y_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_y_reason_n', 'results_benefit_long_ffcra_type_e_agency_a_books_y_reason_n'),
 (1, '{"type":"E","agency":"A","books":"N","reason":"B"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] NO
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_a_books_n_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_n_reason_b', 'results_benefit_long_ffcra_type_e_agency_a_books_n_reason_b'),
 (1, '{"type":"E","agency":"A","books":"N","reason":"Q"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] NO
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_e_agency_a_books_n_reason_q', TRUE),
+[reason] SELF-QUARANTINE', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_n_reason_q', 'results_benefit_long_ffcra_type_e_agency_a_books_n_reason_q'),
 (1, '{"type":"E","agency":"A","books":"N","reason":"S"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] NO
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_a_books_n_reason_s', TRUE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_n_reason_s', 'results_benefit_long_ffcra_type_e_agency_a_books_n_reason_s'),
 (1, '{"type":"E","agency":"A","books":"N","reason":"F"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] NO
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_e_agency_a_books_n_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_n_reason_f', 'results_benefit_long_ffcra_type_e_agency_a_books_n_reason_f'),
 (1, '{"type":"E","agency":"A","books":"N","reason":"N"}', '[type] HOME HEALTH CARE WORKER
 [agency] YES
 [books] NO
-[reason] NONE', 'results_benefit_ffcra_type_e_agency_a_books_n_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_e_agency_a_books_n_reason_n', 'results_benefit_long_ffcra_type_e_agency_a_books_n_reason_n'),
 (1, '{"type":"E","agency":"B","books":"Y","reason":"B"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_b_books_y_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_y_reason_b', 'results_benefit_long_ffcra_type_e_agency_b_books_y_reason_b'),
 (1, '{"type":"E","agency":"B","books":"Y","reason":"Q"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] YES (EITHER)
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_e_agency_b_books_y_reason_q', TRUE),
+[reason] SELF-QUARANTINE', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_y_reason_q', 'results_benefit_long_ffcra_type_e_agency_b_books_y_reason_q'),
 (1, '{"type":"E","agency":"B","books":"Y","reason":"S"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] YES (EITHER)
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_b_books_y_reason_s', TRUE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_y_reason_s', 'results_benefit_long_ffcra_type_e_agency_b_books_y_reason_s'),
 (1, '{"type":"E","agency":"B","books":"Y","reason":"F"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] YES (EITHER)
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_e_agency_b_books_y_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_y_reason_f', 'results_benefit_long_ffcra_type_e_agency_b_books_y_reason_f'),
 (1, '{"type":"E","agency":"B","books":"Y","reason":"N"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] YES (EITHER)
-[reason] NONE', 'results_benefit_ffcra_type_e_agency_b_books_y_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_y_reason_n', 'results_benefit_long_ffcra_type_e_agency_b_books_y_reason_n'),
 (1, '{"type":"E","agency":"B","books":"N","reason":"B"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] NO
-[reason] SELF-QUARANTINE AND SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_b_books_n_reason_b', TRUE),
+[reason] SELF-QUARANTINE AND SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_n_reason_b', 'results_benefit_long_ffcra_type_e_agency_b_books_n_reason_b'),
 (1, '{"type":"E","agency":"B","books":"N","reason":"Q"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] NO
-[reason] SELF-QUARANTINE', 'results_benefit_ffcra_type_e_agency_b_books_n_reason_q', TRUE),
+[reason] SELF-QUARANTINE', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_n_reason_q', 'results_benefit_long_ffcra_type_e_agency_b_books_n_reason_q'),
 (1, '{"type":"E","agency":"B","books":"N","reason":"S"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] NO
-[reason] SCHOOL CLOSED', 'results_benefit_ffcra_type_e_agency_b_books_n_reason_s', TRUE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_n_reason_s', 'results_benefit_long_ffcra_type_e_agency_b_books_n_reason_s'),
 (1, '{"type":"E","agency":"B","books":"N","reason":"F"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] NO
-[reason] FAMILY QUARANTINE OR STAY AT HOME', 'results_benefit_ffcra_type_e_agency_b_books_n_reason_f', TRUE),
+[reason] FAMILY QUARANTINE OR STAY AT HOME', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_n_reason_f', 'results_benefit_long_ffcra_type_e_agency_b_books_n_reason_f'),
 (1, '{"type":"E","agency":"B","books":"N","reason":"N"}', '[type] HOME HEALTH CARE WORKER
 [agency] NO
 [books] NO
-[reason] NONE', 'results_benefit_ffcra_type_e_agency_b_books_n_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_ffcra_type_e_agency_b_books_n_reason_n', 'results_benefit_long_ffcra_type_e_agency_b_books_n_reason_n'),
 
 -- nys
 (2, '{"agency":"A","books":"C","hours per week":"A","reason":"Q"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_a_books_c_hours_per_week_a_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_a_reason_q', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_a_reason_q'),
 (2, '{"agency":"A","books":"C","hours per week":"A","reason":"S"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_a_books_c_hours_per_week_a_reason_s', FALSE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_a_reason_s', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_a_reason_s'),
 (2, '{"agency":"A","books":"C","hours per week":"A","reason":"N"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] NONE', 'results_benefit_nys_agency_a_books_c_hours_per_week_a_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_a_reason_n', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_a_reason_n'),
 (2, '{"agency":"A","books":"C","hours per week":"B","reason":"Q"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_a_books_c_hours_per_week_b_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_b_reason_q', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_b_reason_q'),
 (2, '{"agency":"A","books":"C","hours per week":"B","reason":"S"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_a_books_c_hours_per_week_b_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_b_reason_s', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_b_reason_s'),
 (2, '{"agency":"A","books":"C","hours per week":"B","reason":"N"}', '[agency] YES
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] NONE', 'results_benefit_nys_agency_a_books_c_hours_per_week_b_reason_n', TRUE),
+[reason] NONE', TRUE, 'results_benefit_short_nys_agency_a_books_c_hours_per_week_b_reason_n', 'results_benefit_long_nys_agency_a_books_c_hours_per_week_b_reason_n'),
 (2, '{"agency":"A","books":"N","hours per week":"A","reason":"Q"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_a_books_n_hours_per_week_a_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_a_reason_q', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_a_reason_q'),
 (2, '{"agency":"A","books":"N","hours per week":"A","reason":"S"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_a_books_n_hours_per_week_a_reason_s', FALSE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_a_reason_s', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_a_reason_s'),
 (2, '{"agency":"A","books":"N","hours per week":"A","reason":"N"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] NONE', 'results_benefit_nys_agency_a_books_n_hours_per_week_a_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_a_reason_n', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_a_reason_n'),
 (2, '{"agency":"A","books":"N","hours per week":"B","reason":"Q"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_a_books_n_hours_per_week_b_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_b_reason_q', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_b_reason_q'),
 (2, '{"agency":"A","books":"N","hours per week":"B","reason":"S"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_a_books_n_hours_per_week_b_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_b_reason_s', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_b_reason_s'),
 (2, '{"agency":"A","books":"N","hours per week":"B","reason":"N"}', '[agency] YES
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] NONE', 'results_benefit_nys_agency_a_books_n_hours_per_week_b_reason_n', TRUE),
+[reason] NONE', TRUE, 'results_benefit_short_nys_agency_a_books_n_hours_per_week_b_reason_n', 'results_benefit_long_nys_agency_a_books_n_hours_per_week_b_reason_n'),
 (2, '{"agency":"B","books":"C","hours per week":"A","reason":"Q"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_b_books_c_hours_per_week_a_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_a_reason_q', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_a_reason_q'),
 (2, '{"agency":"B","books":"C","hours per week":"A","reason":"S"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_b_books_c_hours_per_week_a_reason_s', FALSE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_a_reason_s', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_a_reason_s'),
 (2, '{"agency":"B","books":"C","hours per week":"A","reason":"N"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] UNDER 40
-[reason] NONE', 'results_benefit_nys_agency_b_books_c_hours_per_week_a_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_a_reason_n', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_a_reason_n'),
 (2, '{"agency":"B","books":"C","hours per week":"B","reason":"Q"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_b_books_c_hours_per_week_b_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_b_reason_q', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_b_reason_q'),
 (2, '{"agency":"B","books":"C","hours per week":"B","reason":"S"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_b_books_c_hours_per_week_b_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_b_reason_s', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_b_reason_s'),
 (2, '{"agency":"B","books":"C","hours per week":"B","reason":"N"}', '[agency] NO
 [books] YES, IN COMPLIANCE
 [hours per week] 40 OR MORE
-[reason] NONE', 'results_benefit_nys_agency_b_books_c_hours_per_week_b_reason_n', TRUE),
+[reason] NONE', TRUE, 'results_benefit_short_nys_agency_b_books_c_hours_per_week_b_reason_n', 'results_benefit_long_nys_agency_b_books_c_hours_per_week_b_reason_n'),
 (2, '{"agency":"B","books":"N","hours per week":"A","reason":"Q"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_b_books_n_hours_per_week_a_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_a_reason_q', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_a_reason_q'),
 (2, '{"agency":"B","books":"N","hours per week":"A","reason":"S"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_b_books_n_hours_per_week_a_reason_s', FALSE),
+[reason] SCHOOL CLOSED', FALSE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_a_reason_s', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_a_reason_s'),
 (2, '{"agency":"B","books":"N","hours per week":"A","reason":"N"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] UNDER 40
-[reason] NONE', 'results_benefit_nys_agency_b_books_n_hours_per_week_a_reason_n', FALSE),
+[reason] NONE', FALSE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_a_reason_n', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_a_reason_n'),
 (2, '{"agency":"B","books":"N","hours per week":"B","reason":"Q"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', 'results_benefit_nys_agency_b_books_n_hours_per_week_b_reason_q', TRUE),
+[reason] SELF-QUARANTINE OR FAMILY QUARANTINE', TRUE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_b_reason_q', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_b_reason_q'),
 (2, '{"agency":"B","books":"N","hours per week":"B","reason":"S"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] SCHOOL CLOSED', 'results_benefit_nys_agency_b_books_n_hours_per_week_b_reason_s', TRUE),
+[reason] SCHOOL CLOSED', TRUE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_b_reason_s', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_b_reason_s'),
 (2, '{"agency":"B","books":"N","hours per week":"B","reason":"N"}', '[agency] NO
 [books] PARTIALLY OR NO
 [hours per week] 40 OR MORE
-[reason] NONE', 'results_benefit_nys_agency_b_books_n_hours_per_week_b_reason_n', TRUE),
+[reason] NONE', TRUE, 'results_benefit_short_nys_agency_b_books_n_hours_per_week_b_reason_n', 'results_benefit_long_nys_agency_b_books_n_hours_per_week_b_reason_n'),
 
 -- pssl
-(3, '{"type":"N","length of employment":"U","hours per year":"A"}', '[type] NANNY or HOUSE CLEANER
-[length of employment] LESS THAN ONE YEAR
-[hours per year] UNDER 80', 'results_benefit_pssl_type_n_length_of_employment_u_hours_per_year_a', TRUE),
-(3, '{"type":"N","length of employment":"U","hours per year":"B"}', '[type] NANNY or HOUSE CLEANER
-[length of employment] LESS THAN ONE YEAR
-[hours per year] 80 OR MORE', 'results_benefit_pssl_type_n_length_of_employment_u_hours_per_year_b', TRUE),
-(3, '{"type":"N","length of employment":"O","hours per year":"A"}', '[type] NANNY or HOUSE CLEANER
-[length of employment] ONE YEAR OR MORE
-[hours per year] UNDER 80', 'results_benefit_pssl_type_n_length_of_employment_o_hours_per_year_a', TRUE),
-(3, '{"type":"N","length of employment":"O","hours per year":"B"}', '[type] NANNY or HOUSE CLEANER
-[length of employment] ONE YEAR OR MORE
-[hours per year] 80 OR MORE', 'results_benefit_pssl_type_n_length_of_employment_o_hours_per_year_b', TRUE),
-(3, '{"type":"H","length of employment":"U","hours per year":"A"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
-[length of employment] LESS THAN ONE YEAR
-[hours per year] UNDER 80', 'results_benefit_pssl_type_h_length_of_employment_u_hours_per_year_a', TRUE),
-(3, '{"type":"H","length of employment":"U","hours per year":"B"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
-[length of employment] LESS THAN ONE YEAR
-[hours per year] 80 OR MORE', 'results_benefit_pssl_type_h_length_of_employment_u_hours_per_year_b', TRUE),
-(3, '{"type":"H","length of employment":"O","hours per year":"A"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
-[length of employment] ONE YEAR OR MORE
-[hours per year] UNDER 80', 'results_benefit_pssl_type_h_length_of_employment_o_hours_per_year_a', TRUE),
-(3, '{"type":"H","length of employment":"O","hours per year":"B"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
-[length of employment] ONE YEAR OR MORE
-[hours per year] 80 OR MORE', 'results_benefit_pssl_type_h_length_of_employment_o_hours_per_year_b', TRUE),
+(3, '{"type":"N","agency":"A","employed":"U"}', '[type] NANNY or HOUSE CLEANER
+[agency] YES
+[employed] LESS THAN ONE YEAR or UNDER 80', FALSE, 'results_benefit_short_pssl_type_n_agency_a_employed_u', 'results_benefit_long_pssl_type_n_agency_a_employed_u'),
+(3, '{"type":"N","agency":"A","employed":"O"}', '[type] NANNY or HOUSE CLEANER
+[agency] YES
+[employed] ONE YEAR OR MORE and OVER 80', TRUE, 'results_benefit_short_pssl_type_n_agency_a_employed_o', 'results_benefit_long_pssl_type_n_agency_a_employed_o'),
+(3, '{"type":"N","agency":"B","employed":"U"}', '[type] NANNY or HOUSE CLEANER
+[agency] NO
+[employed] LESS THAN ONE YEAR or UNDER 80', FALSE, 'results_benefit_short_pssl_type_n_agency_b_employed_u', 'results_benefit_long_pssl_type_n_agency_b_employed_u'),
+(3, '{"type":"N","agency":"B","employed":"O"}', '[type] NANNY or HOUSE CLEANER
+[agency] NO
+[employed] ONE YEAR OR MORE and OVER 80', TRUE, 'results_benefit_short_pssl_type_n_agency_b_employed_o', 'results_benefit_long_pssl_type_n_agency_b_employed_o'),
+(3, '{"type":"H","agency":"A","employed":"U"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
+[agency] YES
+[employed] LESS THAN ONE YEAR or UNDER 80', TRUE, 'results_benefit_short_pssl_results_benefit_long_pssl_type_h_agency_a_employed_u', 'type_h_agency_a_employed_u'),
+(3, '{"type":"H","agency":"A","employed":"O"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
+[agency] YES
+[employed] ONE YEAR OR MORE and OVER 80', TRUE, 'results_benefit_short_pssl_results_benefit_long_pssl_type_h_agency_a_employed_o', 'type_h_agency_a_employed_o'),
+(3, '{"type":"H","agency":"B","employed":"U"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
+[agency] NO
+[employed] LESS THAN ONE YEAR or UNDER 80', FALSE, 'results_benefit_short_pssl_results_benefit_long_pssl_type_h_agency_b_employed_u', 'type_h_agency_b_employed_u'),
+(3, '{"type":"H","agency":"B","employed":"O"}', '[type] HOME ATTENDANT or HOME HEALTH CARE WORKER
+[agency] NO
+[employed] ONE YEAR OR MORE and OVER 80}', TRUE, 'results_benefit_short_pssl_results_benefit_long_pssl_type_h_agency_b_employed_o', 'type_h_agency_b_employed_o'),
 
 -- dwbor
-(4, '{"length of employment":"U"}', '[length of employment] LESS THAN ONE YEAR', 'results_benefit_dwbor_length_of_employment_u', FALSE),
-(4, '{"length of employment":"O"}', '[length of employment] ONE YEAR OR MORE', 'results_benefit_dwbor_length_of_employment_o', TRUE),
+(4, '{"length of employment":"U"}', '[length of employment] LESS THAN ONE YEAR', FALSE, 'results_benefit_short_dwbor_length_of_employment_u', 'results_benefit_long_dwbor_length_of_employment_u'),
+(4, '{"length of employment":"O"}', '[length of employment] ONE YEAR OR MORE', TRUE, 'results_benefit_short_dwbor_length_of_employment_o', 'results_benefit_long_dwbor_length_of_employment_o'),
 
 -- cares
 (5, '{"books":"C","length of employment":"U"}', '[books] YES, IN COMPLIANCE
-[length of employment] LESS THAN SIX MONTHS', 'results_benefit_cares_books_c_length_of_employment_u', TRUE),
+[length of employment] LESS THAN SIX MONTHS', TRUE, 'results_benefit_short_cares_books_c_length_of_employment_u', 'results_benefit_long_cares_books_c_length_of_employment_u'),
 (5, '{"books":"C","length of employment":"O"}', '[books] YES, IN COMPLIANCE
-[length of employment] SIX MONTHS OR MORE', 'results_benefit_cares_books_c_length_of_employment_o', TRUE),
+[length of employment] SIX MONTHS OR MORE', TRUE, 'results_benefit_short_cares_books_c_length_of_employment_o', 'results_benefit_long_cares_books_c_length_of_employment_o'),
 (5, '{"books":"N","length of employment":"U"}', '[books] PARTIALLY or NO
-[length of employment] LESS THAN SIX MONTHS', 'results_benefit_cares_books_n_length_of_employment_u', TRUE),
+[length of employment] LESS THAN SIX MONTHS', TRUE, 'results_benefit_short_cares_books_n_length_of_employment_u', 'results_benefit_long_cares_books_n_length_of_employment_u'),
 (5, '{"books":"N","length of employment":"O"}', '[books] PARTIALLY or NO
-[length of employment] SIX MONTHS OR MORE', 'results_benefit_cares_books_n_length_of_employment_o', TRUE);
+[length of employment] SIX MONTHS OR MORE', TRUE, 'results_benefit_short_cares_books_n_length_of_employment_o', 'results_benefit_long_cares_books_n_length_of_employment_o');
 
 CREATE TABLE prelaunch_sessions (
     session_id serial NOT NULL,
