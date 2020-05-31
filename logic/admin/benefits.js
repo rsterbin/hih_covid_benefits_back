@@ -19,7 +19,7 @@ module.exports = {
             [ code ]
         );
         if (sth.rows.length < 1) {
-            return { ok: false, status: 404 };
+            return { ok: false, data: { status: 404, code: 'NOT_FOUND' } };
         }
         return { ok: true, data: { benefit: sth.rows[0] } };
     },
@@ -85,6 +85,9 @@ module.exports = {
             WHERE b.code = $1 AND s.scenario_id = $2`,
             [ code, id ]
         );
+        if (sth.rows.length < 1) {
+            return { ok: false, data: { status: 404, code: 'NOT_FOUND' } };
+        }
         const scenario = {
             id: sth.rows[0].scenario_id,
             condition_map: JSON.parse(sth.rows[0].condition_map),
@@ -96,6 +99,124 @@ module.exports = {
             en_expanded: sth.rows[0].en_expanded
         };
         return { ok: true, data: { scenario: scenario } };
+    },
+
+    saveScenario: async (code, id, enabled, en_result, en_expanded) => {
+
+        // Get info
+        const sth1 = await db.query(`
+            SELECT s.scenario_id, s.enabled, s.help,
+                s.lang_key_result, s.lang_key_expanded,
+                b.abbreviation AS benefit,
+                k1.key_id AS result_key_id,
+                k2.key_id AS expanded_key_id,
+                t1.translation AS en_result,
+                t1.translation_id AS en_result_id,
+                t2.translation AS en_expanded,
+                t2.translation_id AS en_expanded_id
+            FROM scenarios s
+            JOIN benefits b USING (benefit_id)
+            LEFT JOIN language_keys k1 ON (s.lang_key_result = k1.key)
+            LEFT JOIN language_keys k2 ON (s.lang_key_expanded = k2.key)
+            LEFT JOIN translations t1 ON (t1.key_id = k1.key_id AND t1.language = 'en')
+            LEFT JOIN translations t2 ON (t2.key_id = k2.key_id AND t2.language = 'en')
+            WHERE b.code = $1 AND s.scenario_id = $2`,
+            [ code, id ]
+        );
+        if (sth1.rows.length < 1) {
+            return { ok: false, data: { status: 404, code: 'NOT_FOUND' } };
+        }
+        let current = sth1.rows[0];
+
+        // Start the transaction
+        await db.query('BEGIN TRANSACTION');
+
+        // Update the enabled flag
+        if (current.enabled != enabled) {
+            const sth2 = await db.query(`
+                UPDATE scenarios
+                SET enabled = $1
+                WHERE scenario_id = $2`,
+                [ enabled, current.scenario_id ]
+            );
+        }
+
+        // Result key insert, if necessary
+        if (!current.result_key_id) {
+            let help = 'This answer appears under ' + current.benefit +
+                " for the following scenario:\n\n" +
+                current.help.split("\n").map(line => '* ' + line).join("\n") +
+                "\n\n" +
+                'If `{{employee_type}}}` appears in the text, it will be ' +
+                'replaced by the type selected.';
+            const sth3 = await db.query(`
+                INSERT INTO language_keys (key, section, help, markdown_allowed)
+                VALUES ($1, 'results_processing', $2, TRUE)
+                RETURNING key_id`,
+                [ current.lang_key_result, help ]
+            );
+            if (sth3.rows.length < 1) {
+                return { ok: false, data: { status: 500, code: 'INSERT_FAILED' } };
+            }
+            current.result_key_id = sth3.rows[0].key_id;
+        }
+
+        // Insert or update result translation
+        if (current.en_result_id) {
+            await db.query(`
+                UPDATE translations
+                SET translation = $1
+                WHERE key_id = $2 AND language = 'en'`,
+                [ en_result, current.result_key_id ]
+            );
+        } else {
+            await db.query(`
+                INSERT INTO translations (key_id, language, translation)
+                VALUES ($1, 'en', $2)`,
+                [ current.result_key_id, en_result ]
+            );
+        }
+
+        // Expanded key insert, if necessary
+        if (!current.expanded_key_id) {
+            let help = 'This expanded answer appears under ' + current.benefit +
+                " for the following scenario:\n\n" +
+                current.help.split("\n").map(line => '* ' + line).join("\n") +
+                "\n\n" +
+                'If `{{employee_type}}}` appears in the text, it will be ' +
+                'replaced by the type selected.';
+            const sth4 = await db.query(`
+                INSERT INTO language_keys (key, section, help, markdown_allowed)
+                VALUES ($1, 'results_processing', $2, TRUE)
+                RETURNING key_id`,
+                [ current.lang_key_expanded, help ]
+            );
+            if (sth4.rows.length < 1) {
+                return { ok: false, data: { status: 500, code: 'INSERT_FAILED' } };
+            }
+            current.expanded_key_id = sth4.rows[0].key_id;
+        }
+
+        // Insert or update expanded translation
+        if (current.en_expanded_id) {
+            await db.query(`
+                UPDATE translations
+                SET translation = $1
+                WHERE key_id = $2 AND language = 'en'`,
+                [ en_expanded, current.expanded_key_id ]
+            );
+        } else {
+            await db.query(`
+                INSERT INTO translations (key_id, language, translation)
+                VALUES ($1, 'en', $2)`,
+                [ current.expanded_key_id, en_expanded ]
+            );
+        }
+
+        // Commit
+        await db.query('COMMIT');
+
+        return { ok: true, msg: 'Updated' };
     }
 
 };

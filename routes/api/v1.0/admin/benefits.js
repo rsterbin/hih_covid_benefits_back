@@ -113,4 +113,33 @@ router.post('/:code/scenario/:id', async function(req, res, next) {
     }
 });
 
+// admin/benefits/:code/scenario/:id/save POST: save the enabled flag and text
+router.post('/:code/scenario/:id/save', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return;
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return;
+    }
+    const check = await sessionLogic.checkToken(req.body.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+        return;
+    }
+    const save = await benefitsLogic.saveScenario(req.params.code, req.params.id, req.body.enabled, req.body.en_result, req.body.en_expanded);
+    if (!save.ok) {
+        res.status(save.data.status);
+        res.json({ code: save.data.code, msg: 'Could not save scenario' });
+    } else {
+        res.json({
+            msg: 'Saved'
+        });
+    }
+});
+
 module.exports = router;
