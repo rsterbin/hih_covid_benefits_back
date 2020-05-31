@@ -79,7 +79,7 @@ module.exports = {
             FROM scenarios s
             JOIN benefits b USING (benefit_id)
             LEFT JOIN language_keys k1 ON (s.lang_key_result = k1.key)
-            LEFT JOIN language_keys k2 ON (s.lang_key_result = k2.key)
+            LEFT JOIN language_keys k2 ON (s.lang_key_expanded = k2.key)
             LEFT JOIN translations t1 ON (t1.key_id = k1.key_id AND t1.language = 'en')
             LEFT JOIN translations t2 ON (t2.key_id = k2.key_id AND t2.language = 'en')
             WHERE b.code = $1 AND s.scenario_id = $2`,
