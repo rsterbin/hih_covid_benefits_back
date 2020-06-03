@@ -78,7 +78,7 @@ CREATE TABLE admin_sessions (
 CREATE TABLE deployments (
     deployment_id serial NOT NULL,
     version_num text NOT NULL,
-    hash text NOT NULL,
+    uuid text NOT NULL,
     date_deployed timestamp with time zone NOT NULL,
     data text,
     CONSTRAINT deployments_pk PRIMARY KEY (deployment_id),
