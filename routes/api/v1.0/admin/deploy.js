@@ -45,14 +45,34 @@ router.post('/init', async function(req, res, next) {
         res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
         return;
     }
-    if (!req.body.keys) {
+    if (!req.body.deploy) {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'Deployment data required' });
+        return;
+    }
+    if (!req.body.deploy.lang_keys) {
         res.status(400);
         res.json({ code: 'LANG_KEYS_REQUIRED', msg: 'Language keys are required' });
         return;
     }
-    if (!req.body.en) {
+    if (!req.body.deploy.lang_en) {
         res.status(400);
         res.json({ code: 'EN_TRANS_REQUIRED', msg: 'English translations are required' });
+        return;
+    }
+    if (!req.body.deploy.benefits) {
+        res.status(400);
+        res.json({ code: 'BENEFITS_REQUIRED', msg: 'Benefits are required' });
+        return;
+    }
+    if (!req.body.deploy.conditions) {
+        res.status(400);
+        res.json({ code: 'CONDITIONS_REQUIRED', msg: 'Conditions are required' });
+        return;
+    }
+    if (!req.body.deploy.scenarios) {
+        res.status(400);
+        res.json({ code: 'SCENARIOS_REQUIRED', msg: 'Scenarios are required' });
         return;
     }
     const check = await sessionLogic.checkToken(req.body.token);
@@ -60,7 +80,7 @@ router.post('/init', async function(req, res, next) {
         res.status(check.data.status);
         res.json({ code: check.data.code, msg: 'Invalid session' });
     }
-    const init = await deployLogic.init(req.body.keys, req.body.en);
+    const init = await deployLogic.init(req.body.deploy);
     if (!init.ok) {
         res.status(init.data.status);
         res.json({ code: init.data.code, msg: 'Could not initialize admin database' });
