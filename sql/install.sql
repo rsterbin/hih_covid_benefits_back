@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS prelaunch_sessions;
+DROP TABLE IF EXISTS resource_links;
 DROP TABLE IF EXISTS resources;
 DROP TABLE IF EXISTS scenarios;
 DROP TABLE IF EXISTS conditions;
@@ -90,6 +91,7 @@ CREATE TABLE language_keys (
     key text NOT NULL,
     section text NOT NULL,
     help text,
+    token_replace text,
     markdown_allowed boolean NOT NULL DEFAULT FALSE,
     CONSTRAINT language_keys_pkey PRIMARY KEY (key_id)
 );
@@ -470,13 +472,25 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 CREATE TABLE resources (
     resource_id serial NOT NULL,
     benefit_id integer,
-    languages text NOT NULL,
-    text_key text NOT NULL,
-    description_key text,
-    sort_order integer NOT NULL
+    code text NOT NULL,
+    lang_key_text text NOT NULL,
+    lang_key_desc text,
+    sort_order integer NOT NULL,
     CONSTRAINT resources_pkey PRIMARY KEY (resource_id),
+    CONSTRAINT resources_code_uq UNIQUE (code),
     CONSTRAINT resources_benefit_id_fk FOREIGN KEY (benefit_id)
         REFERENCES benefits (benefit_id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+CREATE TABLE resource_links (
+    link_id serial NOT NULL,
+    resource_id integer NOT NULL,
+    language text NOT NULL,
+    url text NOT NULL,
+    CONSTRAINT resource_links_pkey PRIMARY KEY (link_id),
+    CONSTRAINT resource_links_resource_id_fk FOREIGN KEY (resource_id)
+        REFERENCES resources (resource_id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 

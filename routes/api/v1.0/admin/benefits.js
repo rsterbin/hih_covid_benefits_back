@@ -32,6 +32,34 @@ router.post('/', async function(req, res, next) {
     }
 });
 
+// admin/benefits/:code POST: get the benefit details
+router.post('/:code', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return;
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return;
+    }
+    const check = await sessionLogic.checkToken(req.body.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+        return;
+    }
+    const ben = await benefitsLogic.getBenefitDetails(req.params.code);
+    if (!ben.ok) {
+        res.status(ben.data.status);
+        res.json({ code: ben.data.code, msg: 'Could not get benefit' });
+        return;
+    } else {
+        res.json({ msg: 'Fetched', benefit: ben.data.benefit });
+    }
+});
+
 // admin/benefits/:code/scenarios POST: get the scenarios and conditions for this benefit
 router.post('/:code/scenarios', async function(req, res, next) {
     if (typeof(req.body) !== 'object') {

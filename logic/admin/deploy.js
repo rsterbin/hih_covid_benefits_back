@@ -19,13 +19,14 @@ class DeployLogic {
         if (deploy.lang_keys) {
             for (const key in deploy.lang_keys) {
                 const sth1 = await db.query(`
-                    INSERT INTO language_keys (key, section, help, markdown_allowed)
+                    INSERT INTO language_keys (key, section, help, token_replace, markdown_allowed)
                     VALUES ($1, $2, $3, $4)
                     RETURNING key_id`,
                     [
                         key,
                         deploy.lang_keys[key].section,
                         deploy.lang_keys[key].help,
+                        deploy.lang_keys[key].token_replace,
                         deploy.lang_keys[key].markdown_allowed
                     ]
                 );
@@ -117,7 +118,7 @@ class DeployLogic {
 
         // keys
         const sth1 = await db.query(`
-            SELECT key, section, help, markdown_allowed
+            SELECT key, section, help, token_replace, markdown_allowed
             FROM language_keys`
         );
         let lang_keys = {};
@@ -125,6 +126,7 @@ class DeployLogic {
             lang_keys[row.key] = {
                 section: row.section,
                 help: row.help,
+                token_replace: row.token_replace,
                 markdown_allowed: row.markdown_allowed
             };
         }
@@ -210,7 +212,7 @@ class DeployLogic {
     }
 
     async prep_version (json) {
-        const version_uuid = uuid4();
+        const version_uuid = uuidv4();
         const sth = await db.query(`
             SELECT version_num
             FROM deployments
