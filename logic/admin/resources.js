@@ -4,7 +4,7 @@ const db = require('../../database');
 const languageLogic = require('./language.js');
 
 const MAX_UNIQUE_TRIES = 10;
-const KEY_BASE = 'results_resources_';
+const KEY_BASE = 'results_resources';
 
 class ResourcesLogic {
 
@@ -51,8 +51,11 @@ class ResourcesLogic {
         let text_key = KEY_BASE;
         let desc_key = KEY_BASE;
         if (benefit) {
-            text_key += '_' + benefit.code;
-            desc_key += '_' + benefit.code;
+            text_key += benefit.code;
+            desc_key += benefit.code;
+        } else {
+            text_key += 'other';
+            desc_key += 'other';
         }
         text_key += '_' + code;
         desc_key += '_desc_' + code;

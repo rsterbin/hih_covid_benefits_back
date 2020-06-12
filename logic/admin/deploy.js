@@ -20,7 +20,7 @@ class DeployLogic {
             for (const key in deploy.lang_keys) {
                 const sth1 = await db.query(`
                     INSERT INTO language_keys (key, section, help, token_replace, markdown_allowed)
-                    VALUES ($1, $2, $3, $4)
+                    VALUES ($1, $2, $3, $4, $5)
                     RETURNING key_id`,
                     [
                         key,
@@ -43,18 +43,21 @@ class DeployLogic {
             }
         }
 
-        // Results
+        // Delete all benefits and their associations
         await db.query(`
             WITH d1 as ( DELETE FROM scenarios ),
-            d2 as ( DELETE FROM conditions )
+            d2 as ( DELETE FROM conditions ),
+            d4 as ( DELETE FROM resource_links ),
+            d5 as ( DELETE FROM resources )
             DELETE FROM benefits`
         );
+
+        // Add benefits
         let b_order = 0;
+        let benefit_map = {};
         if (deploy.benefits) {
             for (const code of deploy.benefits.order) {
-
-                // Benefit
-                const sth1 = await db.query(`
+                const sth2 = await db.query(`
                     INSERT INTO benefits (code, name, abbreviation, sort_order)
                     VALUES ($1, $2, $3, $4)
                     RETURNING benefit_id`,
@@ -65,48 +68,104 @@ class DeployLogic {
                         b_order
                     ]
                 );
-                const benefit_id = sth1.rows[0].benefit_id;
+                const benefit_id = sth2.rows[0].benefit_id;
+                benefit_map[code] = benefit_id;
                 ++b_order;
+            }
+        }
 
-                // Conditions
-                let c_order = 0;
-                for (const cond of deploy.conditions[code]) {
-                    await db.query(`
-                        INSERT INTO conditions (benefit_id, name, key_name,
-                            build_function, options, sort_order)
-                        VALUES ($1, $2, $3, $4, $5, $6)`,
-                        [
-                            benefit_id,
-                            cond.name,
-                            cond.code,
-                            cond.method,
-                            JSON.stringify(cond.outcomes),
-                            c_order
-                        ]
-                    );
-                    c_order++;
-                }
+        // Add conditions
+        for (const code in deploy.conditions) {
+            let c_order = 0;
+            for (const cond of deploy.conditions[code]) {
+                await db.query(`
+                    INSERT INTO conditions (benefit_id, name, key_name,
+                        build_function, options, sort_order)
+                    VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [
+                        benefit_map[code],
+                        cond.name,
+                        cond.code,
+                        cond.method,
+                        JSON.stringify(cond.outcomes),
+                        c_order
+                    ]
+                );
+                c_order++;
+            }
+        }
 
-                // Scenarios
-                let s_order = 0;
-                for (const scen of deploy.scenarios[code]) {
-                    await db.query(`
-                        INSERT INTO scenarios (benefit_id, condition_map, help, enabled,
-                            lang_key_result, lang_key_expanded, sort_order)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                        [
-                            benefit_id,
-                            JSON.stringify(scen.conditions),
-                            scen.help,
-                            scen.enabled,
-                            scen.lang_key_result,
-                            scen.lang_key_expanded,
-                            s_order
-                        ]
-                    );
-                    s_order++;
-                }
+        // Add scenarios
+        for (const code in deploy.scenarios) {
+            let s_order = 0;
+            for (const scen of deploy.scenarios[code]) {
+                await db.query(`
+                    INSERT INTO scenarios (benefit_id, condition_map, help, enabled,
+                        lang_key_result, lang_key_expanded, sort_order)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    [
+                        benefit_map[code],
+                        JSON.stringify(scen.conditions),
+                        scen.help,
+                        scen.enabled,
+                        scen.lang_key_result,
+                        scen.lang_key_expanded,
+                        s_order
+                    ]
+                );
+                s_order++;
+            }
+        }
 
+        // Flatten the resources
+        let resources = [];
+        for (const code in deploy.resources.benefits) {
+            let r_order = 0;
+            for (const res of deploy.resources.benefits[code]) {
+                resources.push({
+                    ...res,
+                    benefit_id: benefit_map[code],
+                    order: r_order
+                });
+                ++r_order;
+            }
+        }
+        for (const res of deploy.resources.other) {
+            let r_order = 0;
+            resources.push({
+                ...res,
+                benefit_id: null,
+                    order: r_order
+            });
+            ++r_order;
+        }
+
+        // Add the resources
+        for (const res of resources) {
+            const sth3 = await db.query(`
+                INSERT INTO resources (benefit_id, code,
+                    lang_key_text, lang_key_desc, sort_order)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING resource_id`,
+                [
+                    res.benefit_id,
+                    res.code,
+                    res.text,
+                    res.desc,
+                    res.order
+                ]
+            );
+            const resource_id = sth3.rows[0].resource_id;
+            for (const lang in res.link) {
+                await db.query(`
+                    INSERT INTO resource_links (resource_id, language, url)
+                    VALUES ($1, $2, $3)`,
+                    [
+                        resource_id,
+                        lang,
+                        res.link[lang]
+                    ]
+                );
             }
         }
 
@@ -202,12 +261,61 @@ class DeployLogic {
             });
         }
 
+        // resources
+        const sth6 = await db.query(`
+            SELECT r.resource_id, b.code AS b_code, r.code,
+                r.lang_key_text, r.lang_key_desc,
+                l.language, l.url
+            FROM resources r
+            LEFT JOIN benefits b USING (benefit_id)
+            LEFT JOIN resource_links l USING (resource_id)
+            ORDER BY b.code, r.sort_order, l.language`
+        );
+        let resources = {
+            benefits: {},
+            other: []
+        };
+        let resource_map = {};
+        for (const row of sth6.rows) {
+            if (!(row.resource_id in resource_map)) {
+                let r = {
+                    code: row.code,
+                    text: row.lang_key_text,
+                    desc: row.lang_key_desc,
+                    link: {}
+                };
+                if (row.b_code) {
+                    if (!(row.b_code in resources.benefits)) {
+                        resources.benefits[row.b_code] = [];
+                    }
+                    resources.benefits[row.b_code].push(r);
+                    resource_map[row.resource_id] = {
+                        benefit: row.b_code,
+                        index: resources.benefits[row.b_code].length - 1
+                    };
+                } else {
+                    resources.other.push(r);
+                    resource_map[row.resource_id] = {
+                        benefit: null,
+                        index: resources.other.length - 1
+                    };
+                }
+            }
+            let info = resource_map[row.resource_id];
+            if (info.benefit) {
+                resources.benefits[info.benefit][info.index].link[row.language] = row.url;
+            } else {
+                resources.other[info.index].link[row.language] = row.url;
+            }
+        }
+
         return JSON.stringify({
             lang_keys: lang_keys,
             lang_en: lang_en,
             benefits: benefits,
             conditions: conditions,
-            scenarios: scenarios
+            scenarios: scenarios,
+            resources: resources
         });
     }
 
@@ -343,7 +451,7 @@ class DeployLogic {
         archive.on("error", (e) => {
             throw new Error(e.message);
         });
-        for (file in version) {
+        for (const file in version) {
             const str = JSON.stringify(version[file]);
             if (!str) {
                 console.log(file + ' is not stringifying properly');
