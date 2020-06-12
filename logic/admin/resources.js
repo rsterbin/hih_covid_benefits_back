@@ -182,6 +182,12 @@ class ResourcesLogic {
         let id = null
         if (old !== null) {
             id = old.id;
+            const sth1 = await db.query(`
+                UPDATE resources
+                SET benefit_id = $1
+                WHERE resource_id = $2`,
+                [ info.benefit ? info.benefit.id : null, id ]
+            );
         } else {
             const keys = await this.generate_keys(info.benefit);
             if (keys === null) {
@@ -278,6 +284,15 @@ class ResourcesLogic {
         await db.query('COMMIT');
 
         return { ok: true, msg: 'Saved', data: { info: info } };
+    }
+
+    async deleteResource (id) {
+        const sth = await db.query(`
+            DELETE FROM resources
+            WHERE resource_id = $1`,
+            [ id ]
+        );
+        return { ok: true };
     }
 
 }
