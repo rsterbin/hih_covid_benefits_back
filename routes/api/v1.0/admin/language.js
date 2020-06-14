@@ -32,6 +32,32 @@ router.post('/', async function(req, res, next) {
     }
 });
 
+// admin/language/section POST: get all language keys for a section
+router.post('/section', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return;
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return;
+    }
+    const check = await sessionLogic.checkToken(req.body.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+    }
+    const all = await languageLogic.getAllKeys(req.body.section);
+    if (!all.ok) {
+        res.status(all.data.status);
+        res.json({ code: all.data.code, msg: 'Could not get language keys' });
+    } else {
+        res.json({ msg: 'Fetched', keys: all.data.all });
+    }
+});
+
 // admin/language/info POST: get info for a single language key
 router.post('/info', async function(req, res, next) {
     if (typeof(req.body) !== 'object') {

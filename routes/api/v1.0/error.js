@@ -20,7 +20,8 @@ const API_ERROR_CODES = [
     'NOT_FOUND',
     'LANGUAGE_REQUIRED',
     'LANG_KEYS_REQUIRED',
-    'EN_TRANS_REQUIRED'
+    'EN_TRANS_REQUIRED',
+    'INSERT_FAILED'
 ];
 
 // error GET: What error codes are there?
