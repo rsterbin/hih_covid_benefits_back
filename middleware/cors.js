@@ -4,6 +4,9 @@ var corsHeaders = function(req, res, next) {
     if (!req.originalUrl.match('^/api')) {
         return next();
     }
+    if (req.originalUrl.match('^/test')) {
+        console.log(JSON.stringify(req.headers));
+    }
 
     const prod_origin = 'https://hih-covid-benefits-back.herokuapp.com';
     const dev_origins = [ 'http://localhost:3000', 'http://localhost:3001', 'http://localhost2:3001' ];
