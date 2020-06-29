@@ -7,7 +7,6 @@ const fs = require('fs');
 
 var currentApiRouter = require('./routes/api/current');
 var downloadRouter = require('./routes/download');
-var testRouter = require('./routes/test');
 var cors = require('./middleware/cors');
 
 require('dotenv').config();
@@ -31,7 +30,6 @@ app.use(cors);
 
 app.use('/api/v1.0', currentApiRouter);
 app.use('/download', downloadRouter);
-app.use('/test', testRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
