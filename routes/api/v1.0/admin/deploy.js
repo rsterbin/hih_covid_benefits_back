@@ -94,6 +94,37 @@ router.post('/revert', async function(req, res, next) {
     }
 });
 
+// admin/deploy/replace POST: replace the current database with the posted values (used to pull recent changes from prod)
+router.post('/replace', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return;
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return;
+    }
+    if (!req.body.alldata) {
+        res.status(400);
+        res.json({ code: 'DATA_REQUIRED', msg: 'Data is required' });
+        return;
+    }
+    const check = await sessionLogic.checkToken(req.body.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+    }
+    const replace = await deployLogic.replace(req.body.alldata);
+    if (!replace.ok) {
+        res.status(replace.data.status);
+        res.json({ code: replace.data.code, msg: 'Could not replace admin database' });
+    } else {
+        res.json({ msg: 'Done', version: replace.data.version_num, uuid: replace.data.version_uuid });
+    }
+});
+
 // admin/deploy/save POST: create a deployment and return its url for download
 router.post('/save', async function(req, res, next) {
     if (typeof(req.body) !== 'object') {

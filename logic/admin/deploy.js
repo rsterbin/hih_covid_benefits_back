@@ -392,8 +392,8 @@ class DeployLogic {
         return { ok: true, data: { deployment: sth.rows[0] } };
     }
 
-    async init (deployment) {
-        const json = JSON.stringify(deployment);
+    async replace (alldata) {
+        const json = JSON.stringify(alldata);
         await this.expand_deployment(json);
         const version = await this.prep_version(json);
         await db.query(`
