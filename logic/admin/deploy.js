@@ -10,6 +10,7 @@ class DeployLogic {
         const deploy = JSON.parse(json);
 
         await db.query('BEGIN TRANSACTION');
+        console.log('expanding', 'began transaction');
 
         // Language
         await db.query(`
@@ -42,6 +43,7 @@ class DeployLogic {
                 }
             }
         }
+        console.log('expanding', 'replaced language');
 
         // Delete all benefits and their associations
         await db.query(`
@@ -51,6 +53,7 @@ class DeployLogic {
             d5 as ( DELETE FROM resources )
             DELETE FROM benefits`
         );
+        console.log('expanding', 'deleted results');
 
         // Add benefits
         let b_order = 0;
@@ -73,6 +76,7 @@ class DeployLogic {
                 ++b_order;
             }
         }
+        console.log('expanding', 'replaced benefits');
 
         // Add conditions
         for (const code in deploy.conditions) {
@@ -95,6 +99,7 @@ class DeployLogic {
                 c_order++;
             }
         }
+        console.log('expanding', 'replaced conditions');
 
         // Add scenarios
         for (const code in deploy.scenarios) {
@@ -117,6 +122,7 @@ class DeployLogic {
                 s_order++;
             }
         }
+        console.log('expanding', 'replaced scenarios');
 
         // Flatten the resources
         let resources = [];
@@ -140,6 +146,7 @@ class DeployLogic {
             });
             ++r_order;
         }
+        console.log('expanding', 'flattened resources');
 
         // Add the resources
         for (const res of resources) {
@@ -169,8 +176,10 @@ class DeployLogic {
                 );
             }
         }
+        console.log('expanding', 'replaced resources');
 
         await db.query('COMMIT');
+        console.log('expanding', 'committed');
     }
 
     // Grab all the versioned things from the database and turn them into a json string
