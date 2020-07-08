@@ -393,10 +393,19 @@ class DeployLogic {
         return { ok: true, data: { deployment: sth.rows[0] } };
     }
 
-    async replace (alldata) {
+    async replace (alldata, deployment) {
         const json = JSON.stringify(alldata);
         await this.expand_deployment(json);
-        const version = await this.prep_version(json);
+        let version = {};
+        if (deployment) {
+            version = {
+                num: deployment.version_num,
+                uuid: deployment.uuid,
+                data: json
+            };
+        } else {
+            version = await this.prep_version(json);
+        }
         await db.query(`
             INSERT INTO deployments (version_num, uuid, date_deployed, data)
             VALUES ($1, $2, NOW(), $3)`,

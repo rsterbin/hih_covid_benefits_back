@@ -116,7 +116,7 @@ router.post('/replace', async function(req, res, next) {
         res.status(check.data.status);
         res.json({ code: check.data.code, msg: 'Invalid session' });
     }
-    const replace = await deployLogic.replace(req.body.alldata);
+    const replace = await deployLogic.replace(req.body.alldata, req.body.deployment);
     if (!replace.ok) {
         res.status(replace.data.status);
         res.json({ code: replace.data.code, msg: 'Could not replace admin database' });
