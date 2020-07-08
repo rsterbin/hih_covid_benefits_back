@@ -79,7 +79,7 @@ class DeployLogic {
             let c_order = 0;
             for (const cond of deploy.conditions[code]) {
                 await db.query(`
-                    INSERT INTO conditions (benefit_id, name, key_name,
+                    INSERT INTO conditions (benefit_id, name, key_name, pass,
                         build_function, options, sort_order)
                     VALUES ($1, $2, $3, $4, $5, $6)`,
                     [
@@ -221,7 +221,7 @@ class DeployLogic {
 
         // conditions
         const sth4 = await db.query(`
-            SELECT b.code AS b_code, c.name, c.key_name, c.build_function, c.options
+            SELECT b.code AS b_code, c.name, c.key_name, c.pass, c.build_function, c.options
             FROM conditions c
             JOIN benefits b USING (benefit_id)
             ORDER BY b.code, c.sort_order`
@@ -234,6 +234,7 @@ class DeployLogic {
             conditions[row.b_code].push({
                 name: row.name,
                 code: row.key_name,
+                pass: row.pass,
                 method: row.build_function,
                 outcomes: JSON.parse(row.options)
             });
