@@ -85,7 +85,7 @@ class DeployLogic {
                 await db.query(`
                     INSERT INTO conditions (benefit_id, name, key_name, pass,
                         build_function, options, sort_order)
-                    VALUES ($1, $2, $3, $4, $5, $6)`,
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                     [
                         benefit_map[code],
                         cond.name,
