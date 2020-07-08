@@ -51,12 +51,12 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"A","books":"C","reason":"N","ffcra":"Y"}', '[work] AGENCY
 [books] YES, IN COMPLIANCE
 [reason] NONE
-[ffcra] YES', TRUE, 'results_benefit_short_nys_work_a_books_c_reason_n_ffcra_y', 'results_benefit_long_nys_work_a_books_c_reason_n_ffcra_y', 4 FROM benefits WHERE code = 'nys';
+[ffcra] YES', FALSE, 'results_benefit_short_nys_work_a_books_c_reason_n_ffcra_y', 'results_benefit_long_nys_work_a_books_c_reason_n_ffcra_y', 4 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"A","books":"C","reason":"N","ffcra":"N"}', '[work] AGENCY
 [books] YES, IN COMPLIANCE
 [reason] NONE
-[ffcra] NO', TRUE, 'results_benefit_short_nys_work_a_books_c_reason_n_ffcra_n', 'results_benefit_long_nys_work_a_books_c_reason_n_ffcra_n', 5 FROM benefits WHERE code = 'nys';
+[ffcra] NO', FALSE, 'results_benefit_short_nys_work_a_books_c_reason_n_ffcra_n', 'results_benefit_long_nys_work_a_books_c_reason_n_ffcra_n', 5 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"A","books":"N","reason":"Q","ffcra":"Y"}', '[work] AGENCY
 [books] PARTIALLY or NO
@@ -81,12 +81,12 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"A","books":"N","reason":"N","ffcra":"Y"}', '[work] AGENCY
 [books] PARTIALLY or NO
 [reason] NONE
-[ffcra] YES', TRUE, 'results_benefit_short_nys_work_a_books_n_reason_n_ffcra_y', 'results_benefit_long_nys_work_a_books_n_reason_n_ffcra_y', 10 FROM benefits WHERE code = 'nys';
+[ffcra] YES', FALSE, 'results_benefit_short_nys_work_a_books_n_reason_n_ffcra_y', 'results_benefit_long_nys_work_a_books_n_reason_n_ffcra_y', 10 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"A","books":"N","reason":"N","ffcra":"N"}', '[work] AGENCY
 [books] PARTIALLY or NO
 [reason] NONE
-[ffcra] NO', TRUE, 'results_benefit_short_nys_work_a_books_n_reason_n_ffcra_n', 'results_benefit_long_nys_work_a_books_n_reason_n_ffcra_n', 11 FROM benefits WHERE code = 'nys';
+[ffcra] NO', FALSE, 'results_benefit_short_nys_work_a_books_n_reason_n_ffcra_n', 'results_benefit_long_nys_work_a_books_n_reason_n_ffcra_n', 11 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"C","reason":"Q","ffcra":"Y"}', '[work] YES
 [books] YES, IN COMPLIANCE
@@ -111,12 +111,12 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"C","reason":"N","ffcra":"Y"}', '[work] YES
 [books] YES, IN COMPLIANCE
 [reason] NONE
-[ffcra] YES', TRUE, 'results_benefit_short_nys_work_y_books_c_reason_n_ffcra_y', 'results_benefit_long_nys_work_y_books_c_reason_n_ffcra_y', 16 FROM benefits WHERE code = 'nys';
+[ffcra] YES', FALSE, 'results_benefit_short_nys_work_y_books_c_reason_n_ffcra_y', 'results_benefit_long_nys_work_y_books_c_reason_n_ffcra_y', 16 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"C","reason":"N","ffcra":"N"}', '[work] YES
 [books] YES, IN COMPLIANCE
 [reason] NONE
-[ffcra] NO', TRUE, 'results_benefit_short_nys_work_y_books_c_reason_n_ffcra_n', 'results_benefit_long_nys_work_y_books_c_reason_n_ffcra_n', 17 FROM benefits WHERE code = 'nys';
+[ffcra] NO', FALSE, 'results_benefit_short_nys_work_y_books_c_reason_n_ffcra_n', 'results_benefit_long_nys_work_y_books_c_reason_n_ffcra_n', 17 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"N","reason":"Q","ffcra":"Y"}', '[work] YES
 [books] PARTIALLY or NO
@@ -141,12 +141,12 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"N","reason":"N","ffcra":"Y"}', '[work] YES
 [books] PARTIALLY or NO
 [reason] NONE
-[ffcra] YES', TRUE, 'results_benefit_short_nys_work_y_books_n_reason_n_ffcra_y', 'results_benefit_long_nys_work_y_books_n_reason_n_ffcra_y', 22 FROM benefits WHERE code = 'nys';
+[ffcra] YES', FALSE, 'results_benefit_short_nys_work_y_books_n_reason_n_ffcra_y', 'results_benefit_long_nys_work_y_books_n_reason_n_ffcra_y', 22 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"Y","books":"N","reason":"N","ffcra":"N"}', '[work] YES
 [books] PARTIALLY or NO
 [reason] NONE
-[ffcra] NO', TRUE, 'results_benefit_short_nys_work_y_books_n_reason_n_ffcra_n', 'results_benefit_long_nys_work_y_books_n_reason_n_ffcra_n', 23 FROM benefits WHERE code = 'nys';
+[ffcra] NO', FALSE, 'results_benefit_short_nys_work_y_books_n_reason_n_ffcra_n', 'results_benefit_long_nys_work_y_books_n_reason_n_ffcra_n', 23 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"N","books":"C","reason":"Q","ffcra":"Y"}', '[work] NO
 [books] YES, IN COMPLIANCE
@@ -191,12 +191,12 @@ INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"N","books":"N","reason":"F","ffcra":"Y"}', '[work] NO
 [books] PARTIALLY or NO
 [reason] FAMILY QUARANTINE
-[ffcra] YES', TRUE, 'results_benefit_short_nys_work_n_books_n_reason_f_ffcra_y', 'results_benefit_long_nys_work_n_books_n_reason_f_ffcra_y', 32 FROM benefits WHERE code = 'nys';
+[ffcra] YES', FALSE, 'results_benefit_short_nys_work_n_books_n_reason_f_ffcra_y', 'results_benefit_long_nys_work_n_books_n_reason_f_ffcra_y', 32 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"N","books":"N","reason":"F","ffcra":"N"}', '[work] NO
 [books] PARTIALLY or NO
 [reason] FAMILY QUARANTINE
-[ffcra] NO', TRUE, 'results_benefit_short_nys_work_n_books_n_reason_f_ffcra_n', 'results_benefit_long_nys_work_n_books_n_reason_f_ffcra_n', 33 FROM benefits WHERE code = 'nys';
+[ffcra] NO', FALSE, 'results_benefit_short_nys_work_n_books_n_reason_f_ffcra_n', 'results_benefit_long_nys_work_n_books_n_reason_f_ffcra_n', 33 FROM benefits WHERE code = 'nys';
 
 INSERT INTO scenarios (benefit_id, condition_map, help, enabled, lang_key_result, lang_key_expanded, sort_order) SELECT benefit_id, '{"work":"N","books":"N","reason":"N","ffcra":"Y"}', '[work] NO
 [books] PARTIALLY or NO
