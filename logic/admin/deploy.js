@@ -86,6 +86,7 @@ class DeployLogic {
                         benefit_map[code],
                         cond.name,
                         cond.code,
+                        cond.pass,
                         cond.method,
                         JSON.stringify(cond.outcomes),
                         c_order
