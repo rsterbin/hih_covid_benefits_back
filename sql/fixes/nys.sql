@@ -1,5 +1,5 @@
 --
--- I changed the way NYS splits up its answers.  This alters the table, corrects its scenarios, and clears the inactive language keys.
+-- I changed the way NYS splits up its answers.  This alters the table, corrects its conditions and scenarios, and clears the inactive language keys.
 --
 
 ALTER TABLE conditions ADD COLUMN pass text;
