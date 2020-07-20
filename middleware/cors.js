@@ -5,12 +5,12 @@ var corsHeaders = function(req, res, next) {
         return next();
     }
 
-    const prod_origin = 'https://hih-covid-benefits-back.herokuapp.com';
+    const prod_origins = [ 'https://www.nydomesticworkbenefits.org', 'https://hih-covid-benefits-back.herokuapp.com' ];
     const dev_origins = [ 'http://localhost:3000', 'http://localhost:3001', 'http://localhost2:3001' ];
     let origin = req.get('origin');
     let ok = true;
-    if (!dev_origins.includes(origin) && origin !== prod_origin) {
-        origin = prod_origin;
+    if (!dev_origins.includes(origin) && !prod_origins.includes(origin)) {
+        origin = prod_origins[0];
         ok = false;
     }
     res.header('Access-Control-Allow-Origin', origin);
