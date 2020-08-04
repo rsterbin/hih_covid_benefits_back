@@ -26,7 +26,7 @@ var corsHeaders = function(req, res, next) {
             next();
         } else {
             res.status(403);
-            res.json({ msg: 'Access is restricted' });
+            res.json({ msg: 'Access is restricted', origin: origin });
         }
     }
 };
