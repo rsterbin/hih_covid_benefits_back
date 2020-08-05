@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.3eb4fcd5.chunk.css",
-    "main.js": "/static/js/main.618b6de8.chunk.js",
-    "main.js.map": "/static/js/main.618b6de8.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.bcb4aa5f.js",
-    "runtime-main.js.map": "/static/js/runtime-main.bcb4aa5f.js.map",
-    "static/js/2.27a661cc.chunk.js": "/static/js/2.27a661cc.chunk.js",
-    "static/js/2.27a661cc.chunk.js.map": "/static/js/2.27a661cc.chunk.js.map",
-    "index.html": "/index.html",
-    "precache-manifest.00d9732032e7b5997aa81ced4a6e662a.js": "/precache-manifest.00d9732032e7b5997aa81ced4a6e662a.js",
-    "service-worker.js": "/service-worker.js",
-    "static/css/main.3eb4fcd5.chunk.css.map": "/static/css/main.3eb4fcd5.chunk.css.map",
-    "static/js/2.27a661cc.chunk.js.LICENSE.txt": "/static/js/2.27a661cc.chunk.js.LICENSE.txt"
+    "main.css": "https://www.nydomesticworkbenefits.org/static/css/main.3eb4fcd5.chunk.css",
+    "main.js": "https://www.nydomesticworkbenefits.org/static/js/main.8d059012.chunk.js",
+    "main.js.map": "https://www.nydomesticworkbenefits.org/static/js/main.8d059012.chunk.js.map",
+    "runtime-main.js": "https://www.nydomesticworkbenefits.org/static/js/runtime-main.87c8d93e.js",
+    "runtime-main.js.map": "https://www.nydomesticworkbenefits.org/static/js/runtime-main.87c8d93e.js.map",
+    "static/js/2.27a661cc.chunk.js": "https://www.nydomesticworkbenefits.org/static/js/2.27a661cc.chunk.js",
+    "static/js/2.27a661cc.chunk.js.map": "https://www.nydomesticworkbenefits.org/static/js/2.27a661cc.chunk.js.map",
+    "index.html": "https://www.nydomesticworkbenefits.org/index.html",
+    "precache-manifest.06580b852310fce2d8a1afdf12371ae9.js": "https://www.nydomesticworkbenefits.org/precache-manifest.06580b852310fce2d8a1afdf12371ae9.js",
+    "service-worker.js": "https://www.nydomesticworkbenefits.org/service-worker.js",
+    "static/css/main.3eb4fcd5.chunk.css.map": "https://www.nydomesticworkbenefits.org/static/css/main.3eb4fcd5.chunk.css.map",
+    "static/js/2.27a661cc.chunk.js.LICENSE.txt": "https://www.nydomesticworkbenefits.org/static/js/2.27a661cc.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.bcb4aa5f.js",
+    "static/js/runtime-main.87c8d93e.js",
     "static/js/2.27a661cc.chunk.js",
     "static/css/main.3eb4fcd5.chunk.css",
-    "static/js/main.618b6de8.chunk.js"
+    "static/js/main.8d059012.chunk.js"
   ]
 }
