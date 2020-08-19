@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://www.nydomesticworkbenefits.org/precache-manifest.06580b852310fce2d8a1afdf12371ae9.js"
+  "https://www.nydomesticworkbenefits.org/precache-manifest.0b52f48f457b1d0dd85e65ecde60df0b.js"
 );
 
 self.addEventListener('message', (event) => {
