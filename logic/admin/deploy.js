@@ -6,44 +6,130 @@ const db = require('../../database');
 class DeployLogic {
 
     // Take a deployment in json form and push it into the database
+    // NB: If we're expanding an old deployment, we may not want to do a
+    // complete refresh, but pull in only the relevant sections -- it'd be
+    // way to complicated to try and do a data merge, but we can at least
+    // not bork, say, the responses table
     async expand_deployment (json) {
         const deploy = JSON.parse(json);
 
         await db.query('BEGIN TRANSACTION');
         console.log('expanding', 'began transaction');
 
-        // Language
+        if ('lang_keys' in deploy) {
+            replace_translations(deploy);
+        }
+
+        if ('questions' in deploy) {
+            replace_questions(deploy);
+        }
+
+        if ('benefits' in deploy) {
+            replace_benefits(deploy);
+        }
+
+        await db.query('COMMIT');
+        console.log('expanding', 'committed');
+    }
+
+    async replace_translations (deploy) {
+
+        // Delete keys and translations
         await db.query(`
             WITH d1 as ( DELETE FROM translations )
             DELETE FROM language_keys`
         );
-        if (deploy.lang_keys) {
-            for (const key in deploy.lang_keys) {
-                const sth1 = await db.query(`
-                    INSERT INTO language_keys (key, section, help, token_replace, markdown_allowed)
-                    VALUES ($1, $2, $3, $4, $5)
-                    RETURNING key_id`,
-                    [
-                        key,
-                        deploy.lang_keys[key].section,
-                        deploy.lang_keys[key].help,
-                        deploy.lang_keys[key].token_replace,
-                        deploy.lang_keys[key].markdown_allowed
-                    ]
+
+        // Replace them
+        for (const key in deploy.lang_keys) {
+            const sth = await db.query(`
+                INSERT INTO language_keys (key, section, help, token_replace, markdown_allowed)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING key_id`,
+                [
+                    key,
+                    deploy.lang_keys[key].section,
+                    deploy.lang_keys[key].help,
+                    deploy.lang_keys[key].token_replace,
+                    deploy.lang_keys[key].markdown_allowed
+                ]
+            );
+            const key_id = sth.rows[0].key_id;
+            if (key in deploy.lang_en) {
+                await db.query(`
+                    INSERT INTO translations (key_id, language, translation)
+                    VALUES ($1, $2, $3)`,
+                    [ key_id, 'en', deploy.lang_en[key] ]
                 );
-                const key_id = sth1.rows[0].key_id;
-                if (key in deploy.lang_en) {
-                    await db.query(`
-                        INSERT INTO translations (key_id, language, translation)
-                        VALUES ($1, $2, $3)`,
-                        [ key_id, 'en', deploy.lang_en[key] ]
-                    );
-                } else {
-                    console.log('Missing translation for ' + key);
-                }
+            } else {
+                console.log('Missing translation for ' + key);
             }
         }
+
         console.log('expanding', 'replaced language');
+
+    }
+
+    async replace_questions (deploy) {
+
+        // Delete all questions and their answers
+        await db.query(`
+            WITH d as ( DELETE FROM answers ),
+            DELETE FROM questions`
+        );
+        console.log('expanding', 'deleted questions and answers');
+
+        // Add questions
+        let q_order = 0;
+        let question_map = {};
+        let answer_map = {};
+        if (deploy.questions) {
+            for (const code of deploy.questions.order) {
+                const sth = await db.query(`
+                    INSERT INTO questions (code, full_lang_key, title_lang_key,
+                        help_lang_key, layout, sort_order)
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING question_id`,
+                    [
+                        code,
+                        deploy.questions.spec[code].full_lang_key,
+                        deploy.questions.spec[code].title_lang_key,
+                        deploy.questions.spec[code].help_lang_key,
+                        deploy.questions.spec[code].layout,
+                        q_order
+                    ]
+                );
+                const question_id = sth.rows[0].question_id;
+                question_map[code] = question_id;
+                answer_map[code] = deploy.questions.spec[code].answers;
+                ++q_order;
+            }
+        }
+        console.log('expanding', 'replaced questions');
+
+        // Add answers
+        for (const code in answer_map) {
+            let a_order = 0;
+            for (const answer of answer_map[code]) {
+                await db.query(`
+                    INSERT INTO question_answers (question_id, letter,
+                        lang_key, sort_order)
+                    VALUES ($1, $2, $3, $4)`,
+                    [
+                        question_map[code],
+                        answer.letter,
+                        answer.lang_key,
+                        a_order
+                    ]
+                );
+                a_order++;
+            }
+        }
+        console.log('expanding', 'replaced answers');
+
+    }
+
+    async replace_benefits (deploy) {
 
         // Delete all benefits and their associations
         await db.query(`
@@ -58,23 +144,21 @@ class DeployLogic {
         // Add benefits
         let b_order = 0;
         let benefit_map = {};
-        if (deploy.benefits) {
-            for (const code of deploy.benefits.order) {
-                const sth2 = await db.query(`
-                    INSERT INTO benefits (code, name, abbreviation, sort_order)
-                    VALUES ($1, $2, $3, $4)
-                    RETURNING benefit_id`,
-                    [
-                        code,
-                        deploy.benefits.spec[code].name,
-                        deploy.benefits.spec[code].abbreviation,
-                        b_order
-                    ]
-                );
-                const benefit_id = sth2.rows[0].benefit_id;
-                benefit_map[code] = benefit_id;
-                ++b_order;
-            }
+        for (const code of deploy.benefits.order) {
+            const sth = await db.query(`
+                INSERT INTO benefits (code, name, abbreviation, sort_order)
+                VALUES ($1, $2, $3, $4)
+                RETURNING benefit_id`,
+                [
+                    code,
+                    deploy.benefits.spec[code].name,
+                    deploy.benefits.spec[code].abbreviation,
+                    b_order
+                ]
+            );
+            const benefit_id = sth.rows[0].benefit_id;
+            benefit_map[code] = benefit_id;
+            ++b_order;
         }
         console.log('expanding', 'replaced benefits');
 
@@ -150,7 +234,7 @@ class DeployLogic {
 
         // Add the resources
         for (const res of resources) {
-            const sth3 = await db.query(`
+            const sth = await db.query(`
                 INSERT INTO resources (benefit_id, code,
                     lang_key_text, lang_key_desc, sort_order)
                 VALUES ($1, $2, $3, $4, $5)
@@ -163,7 +247,7 @@ class DeployLogic {
                     res.order
                 ]
             );
-            const resource_id = sth3.rows[0].resource_id;
+            const resource_id = sth.rows[0].resource_id;
             for (const lang in res.link) {
                 await db.query(`
                     INSERT INTO resource_links (resource_id, language, url)
@@ -178,8 +262,6 @@ class DeployLogic {
         }
         console.log('expanding', 'replaced resources');
 
-        await db.query('COMMIT');
-        console.log('expanding', 'committed');
     }
 
     // Grab all the versioned things from the database and turn them into a json string
@@ -212,8 +294,39 @@ class DeployLogic {
             lang_en[row.key] = row.translation;
         }
 
-        // benefits
+        // questions and answers
         const sth3 = await db.query(`
+            SELECT q.question_id, q.code, q.full_lang_key, q.title_lang_key,
+                q.help_lang_key, q.layout, q.sort_order AS q_sort_order,
+                a.letter, a.lang_key AS answer_lang_key,
+                a.sort_order AS a_sort_order
+            FROM questions q
+            LEFT JOIN question_answers a USING (question_id)
+            ORDER BY q.sort_order, a.sort_order`
+        );
+        let questions = {
+            order: [],
+            spec: {}
+        };
+        for (const row of sth3.rows) {
+            if (!(row.code in questions.spec)) {
+                questions.spec[row.code] = {
+                    full_lang_key: row.full_lang_key,
+                    title_lang_key: row.title_lang_key,
+                    help_lang_key: row.help_lang_key,
+                    layout: row.layout,
+                    answers: []
+                };
+                questions.order.push(row.code);
+            }
+            questions.spec[row.code].answers.push({
+                letter: row.letter,
+                lang_key: row.answer_lang_key
+            });
+        }
+
+        // benefits
+        const sth4 = await db.query(`
             SELECT code, name, abbreviation, sort_order
             FROM benefits`
         );
@@ -221,7 +334,7 @@ class DeployLogic {
             order: [],
             spec: {}
         };
-        for (const row of sth3.rows) {
+        for (const row of sth4.rows) {
             benefits.order.push(row.code);
             benefits.spec[row.code] = {
                 name: row.name,
@@ -230,14 +343,14 @@ class DeployLogic {
         }
 
         // conditions
-        const sth4 = await db.query(`
+        const sth5 = await db.query(`
             SELECT b.code AS b_code, c.name, c.key_name, c.pass, c.build_function, c.options
             FROM conditions c
             JOIN benefits b USING (benefit_id)
             ORDER BY b.code, c.sort_order`
         );
         let conditions = {};
-        for (const row of sth4.rows) {
+        for (const row of sth5.rows) {
             if (!(row.b_code in conditions)) {
                 conditions[row.b_code] = [];
             }
@@ -251,7 +364,7 @@ class DeployLogic {
         }
 
         // scenarios
-        const sth5 = await db.query(`
+        const sth6 = await db.query(`
             SELECT b.code AS b_code, condition_map, help, enabled,
                 lang_key_result, lang_key_expanded
             FROM scenarios s
@@ -259,7 +372,7 @@ class DeployLogic {
             ORDER BY b.code, s.sort_order`
         );
         let scenarios = {};
-        for (const row of sth5.rows) {
+        for (const row of sth6.rows) {
             if (!(row.b_code in scenarios)) {
                 scenarios[row.b_code] = [];
             }
@@ -273,7 +386,7 @@ class DeployLogic {
         }
 
         // resources
-        const sth6 = await db.query(`
+        const sth7 = await db.query(`
             SELECT r.resource_id, b.code AS b_code, r.code,
                 r.lang_key_text, r.lang_key_desc,
                 l.language, l.url
@@ -287,7 +400,7 @@ class DeployLogic {
             other: []
         };
         let resource_map = {};
-        for (const row of sth6.rows) {
+        for (const row of sth7.rows) {
             if (!(row.resource_id in resource_map)) {
                 let r = {
                     code: row.code,
@@ -323,6 +436,7 @@ class DeployLogic {
         return JSON.stringify({
             lang_keys: lang_keys,
             lang_en: lang_en,
+            questions: questions,
             benefits: benefits,
             conditions: conditions,
             scenarios: scenarios,
