@@ -7,6 +7,7 @@ const fs = require('fs');
 
 var currentApiRouter = require('./routes/api/current');
 var downloadRouter = require('./routes/download');
+var testRouter = require('./routes/test');
 var cors = require('./middleware/cors');
 
 require('dotenv').config();
@@ -30,6 +31,7 @@ app.use(cors);
 
 app.use('/api/v1.0', currentApiRouter);
 app.use('/download', downloadRouter);
+app.use('/test', testRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -54,11 +56,21 @@ app.use(function(err, req, res, next) {
   }
 
   // If we're within the download section, send json
-  if (req.originalUrl.match('^/download')) {
+  else if (req.originalUrl.match('^/download')) {
     res.status(err.status || 500);
     let msg = err.message;
     if (err.status === 404) {
         msg = 'Not found';
+    }
+    res.json({ code: 'UNEXPECTED', msg: msg });
+  }
+
+  // If we're within the test section, send json
+  else if (req.originalUrl.match('^/test')) {
+    res.status(err.status || 500);
+    let msg = err.message;
+    if (err.status === 404) {
+        msg = 'Test not found';
     }
     res.json({ code: 'UNEXPECTED', msg: msg });
   }
