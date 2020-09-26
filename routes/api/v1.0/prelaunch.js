@@ -24,7 +24,7 @@ router.post('/check', async function(req, res, next) {
         WHERE expires < NOW()`
     );
     const sth2 = await db.query(`
-        SELECT session_id FROM prelaunch_sessions
+        SELECT session_id, expires FROM prelaunch_sessions
         WHERE token = $1 AND expires >= NOW()`,
         [ req.body.token ]
     );
@@ -34,10 +34,15 @@ router.post('/check', async function(req, res, next) {
         const sth3 = await db.query(`
             UPDATE prelaunch_sessions
             SET expires = NOW() + INTERVAL '1 day'
-            WHERE session_id = $1`,
+            WHERE session_id = $1
+            RETURNING expires`,
             [ sid ]
         );
-        res.json({ msg: 'Valid session', session_id: sid });
+        let exp = sth2.rows[0].expires;
+        if (sth3.length > 0) {
+            exp = sth3.rows[0].expires;
+        }
+        res.json({ msg: 'Valid session', session_id: sid, expires: exp });
     } else {
         res.status(403);
         res.json({ code: 'TOKEN_INVALID', msg: 'Invalid session' });
@@ -67,10 +72,11 @@ router.post('/login', async function(req, res, next) {
         const token = uuidv4();
         const sth = await db.query(`
             INSERT INTO prelaunch_sessions (token, expires)
-            SELECT $1, NOW() + INTERVAL '1 day'`,
+            SELECT $1, NOW() + INTERVAL '1 day'
+            RETURNING session_id, expires`,
             [ token ]
         );
-        res.json({ msg: 'Login successful', token: token });
+        res.json({ msg: 'Login successful', sid: sth.rows[0].session_id, token: token, expires: sth.rows[0].expires });
     } else {
         res.status(403);
         res.json({ code: 'LOGIN_INCORRECT', msg: 'Password incorrect' });
