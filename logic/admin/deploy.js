@@ -17,15 +17,15 @@ class DeployLogic {
         console.log('expanding', 'began transaction');
 
         if ('lang_keys' in deploy) {
-            replace_translations(deploy);
+            await this.replace_translations(deploy);
         }
 
         if ('questions' in deploy) {
-            replace_questions(deploy);
+            await this.replace_questions(deploy);
         }
 
         if ('benefits' in deploy) {
-            replace_benefits(deploy);
+            await this.replace_benefits(deploy);
         }
 
         await db.query('COMMIT');
@@ -73,8 +73,9 @@ class DeployLogic {
     async replace_questions (deploy) {
 
         // Delete all questions and their answers
+        console.log('is this working?');
         await db.query(`
-            WITH d as ( DELETE FROM answers ),
+            WITH d1 as ( DELETE FROM answers )
             DELETE FROM questions`
         );
         console.log('expanding', 'deleted questions and answers');
@@ -88,7 +89,7 @@ class DeployLogic {
                 const sth = await db.query(`
                     INSERT INTO questions (code, full_lang_key, title_lang_key,
                         help_lang_key, layout, sort_order)
-                    VALUES ($1, $2, $3, $4)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                     RETURNING question_id`,
                     [
                         code,
