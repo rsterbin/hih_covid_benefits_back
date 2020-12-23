@@ -75,7 +75,7 @@ class DeployLogic {
         // Delete all questions and their answers
         console.log('is this working?');
         await db.query(`
-            WITH d1 as ( DELETE FROM answers )
+            WITH d as ( DELETE FROM question_answers )
             DELETE FROM questions`
         );
         console.log('expanding', 'deleted questions and answers');
