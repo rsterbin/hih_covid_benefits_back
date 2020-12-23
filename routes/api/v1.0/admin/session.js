@@ -1,6 +1,5 @@
 const express = require('express');
 const Router = require('express-promise-router');
-const { v4: uuidv4 } = require('uuid');
 
 const db = require('../../../../database');
 const config = require('../../../../config');
@@ -21,9 +20,14 @@ router.post('/check', async function(req, res, next) {
         res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
         return next();
     }
+    console.log('body', req.body);
     const check = await sessionLogic.checkToken(req.body.token);
     if (check.ok) {
-        res.json({ msg: 'Valid session', session_id: check.data.sid });
+        res.json({
+            msg: 'Valid session',
+            session_id: check.data.sid,
+            expires: check.data.expires
+        });
     } else {
         res.status(check.data.status);
         res.json({ code: check.data.code, msg: 'Invalid session' });
@@ -50,16 +54,42 @@ router.post('/login', async function(req, res, next) {
     const correct_username = config.get('admin_username');
     const correct_password = config.get('admin_password');
     if (req.body.username === correct_username && req.body.password === correct_password) {
-        const token = uuidv4();
-        const sth = await db.query(`
-            INSERT INTO admin_sessions (token, expires)
-            SELECT $1, NOW() + INTERVAL '1 hour'`,
-            [ token ]
-        );
-        res.json({ msg: 'Login successful', token: token });
+        const started = await sessionLogic.startSession();
+        if (started.ok) {
+            res.json({
+                msg: 'Login successful',
+                sid: started.data.sid,
+                token: started.data.token,
+                expires: started.data.expires
+            });
+        } else {
+            res.status(started.data.status);
+            res.json({ code: started.data.code, msg: 'Session could not be ended' });
+        }
     } else {
         res.status(403);
         res.json({ code: 'LOGIN_INCORRECT', msg: 'Password incorrect' });
+    }
+});
+
+// admin/session/logout POST: Deletes a session token
+router.post('/logout', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return next();
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return next();
+    }
+    const del = await sessionLogic.deleteToken(req.body.token);
+    if (del.ok) {
+        res.json({ msg: 'Session ended', session_id: check.data.sid });
+    } else {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Session could not be ended' });
     }
 });
 

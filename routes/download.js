@@ -1,10 +1,12 @@
 const express = require('express');
 const Router = require('express-promise-router');
 const archiver = require('archiver');
+const { DateTime } = require('luxon');
 
 const sessionLogic = require('../logic/admin/session');
 const deployLogic = require('../logic/admin/deploy');
 const responseLogic = require('../logic/admin/response');
+const contactLogic = require('../logic/admin/contact');
 
 const router = new Router();
 
@@ -42,7 +44,28 @@ router.get('/responses/all/:token', async function (req, res, next) {
         res.status(download.data.status);
         res.json({ code: download.save.code, msg: 'Could not download responses' });
     } else {
-        res.attachment('responses.csv');
+        const now = DateTime.local();
+        const filename = 'hnct-' + now.toISODate() + '-responses.csv';
+        res.attachment(filename);
+        res.status(200).send(download.data);
+    }
+});
+
+// Download raw contacts into a CSV file
+router.get('/contacts/raw/:token', async function (req, res, next) {
+    const check = await sessionLogic.checkToken(req.params.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+    }
+    const download = await contactLogic.getRawCSV();
+    if (!download.ok) {
+        res.status(download.data.status);
+        res.json({ code: download.save.code, msg: 'Could not download raw contacts' });
+    } else {
+        const now = DateTime.local();
+        const filename = 'hnct-' + now.toISODate() + '-raw-contacts.csv';
+        res.attachment(filename);
         res.status(200).send(download.data);
     }
 });
