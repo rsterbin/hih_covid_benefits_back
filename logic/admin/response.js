@@ -47,8 +47,8 @@ class ResponseLogic {
             JOIN translations t ON (k.key_id = t.key_id AND t.language = 'en')
             ORDER BY q.sort_order`
         );
-        let fields = [];
-        let fieldNames = [];
+        let fields = ['submitted'];
+        let fieldNames = ['Submitted At'];
         for (const row of sth.rows) {
             fields.push(row.code);
             fieldNames.push(row.title);
