@@ -10,7 +10,7 @@ var corsHeaders = function(req, res, next) {
     let origin = req.get('origin');
     let ok = true;
     if (!dev_origins.includes(origin) && !prod_origins.includes(origin)) {
-        origin = prod_origins[0];
+        // origin = prod_origins[0];
         ok = false;
     }
     res.header('Access-Control-Allow-Origin', origin);
