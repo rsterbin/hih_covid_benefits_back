@@ -445,6 +445,106 @@ class DeployLogic {
         });
     }
 
+    compare (deployA, deployB) {
+        const dataA = JSON.parse(deployA);
+        const dataB = JSON.parse(deployB);
+        let result = {
+            match: true,
+            diff: {
+                lang_keys: {
+                    missingA: [],
+                    missingB: [],
+                    diff: [],
+                },
+                lang_en: {
+                    missingA: [],
+                    missingB: [],
+                    diff: [],
+                },
+                questions: {
+                    order_match: true,
+                    order_diff: {},
+                    missingA: [],
+                    missingB: [],
+                    diff: [],
+                },
+                benefits: {},
+                conditions: {},
+                scenarios: {},
+                resources: {}
+            }
+        };
+
+        // lang keys 
+        let a_lang_keys = 'lang_keys' in dataA ? dataA.lang_keys : {};
+        let b_lang_keys = 'lang_keys' in dataB ? dataB.lang_keys : {};
+        foreach (const k in a_lang_keys) {
+            if (!(k in b_lang_keys)) {
+                result.match = false;
+                result.diff.lang_keys.missingB.push(k);
+            } else {
+                let ok = true;
+                foreach (const sk of [ 'section', 'help', 'token_replace', 'markdown_allowed' ]) {
+                    if (a_lang_keys[k][sk] !== b_lang_keys[k][sk]) {
+                        ok = false;
+                    }
+                }
+                if (!ok) {
+                    result.match = false;
+                    result.diff.lang_keys.diff.push({
+                        key: k,
+                        a_version: a_lang_keys[k],
+                        b_version: b_lang_keys[k];
+                    });
+                }
+            }
+        }
+        foreach (const k in b_lang_keys) {
+            if (!(k in a_lang_keys)) {
+                result.match = false;
+                result.diff.lang_keys.missingA.push(k);
+            }
+        }
+
+        // lang_en
+        let a_lang_en = 'lang_en' in dataA ? dataA.lang_en : {};
+        let b_lang_en = 'lang_en' in dataB ? dataB.lang_en : {};
+        foreach (const k in a_lang_en) {
+            if (!(k in b_lang_en)) {
+                result.match = false;
+                result.diff.lang_en.missingB.push(k);
+            } else {
+                if (a_lang_en[k] !== b_lang_en[k]) {
+                    result.match = false;
+                    result.diff.lang_en.diff.push({
+                        key: k,
+                        a_version: a_lang_en[k],
+                        b_version: b_lang_en[k];
+                    });
+                }
+            }
+        }
+        foreach (const k in b_lang_en) {
+            if (!(k in a_lang_en)) {
+                result.match = false;
+                result.diff.lang_en.missingA.push(k);
+            }
+        }
+
+        // TODO: questions: {
+        //  order_match: true,
+        //  order_diff: {},
+        //  missingA: [],
+        //  missingB: [],
+        //  diff: [],
+        // },
+        // TODO: benefits: {},
+        // TODO: conditions: {},
+        // TODO: scenarios: {},
+        // TODO: resources: {}
+
+    }
+
     async prep_version (json) {
         const version_uuid = uuidv4();
         const sth = await db.query(`
