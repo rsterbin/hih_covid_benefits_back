@@ -2,6 +2,7 @@ var fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const db = require('../../database');
+const util = require('../util');
 
 class DeployLogic {
 
@@ -476,68 +477,42 @@ class DeployLogic {
         };
 
         // lang keys 
-        let a_lang_keys = 'lang_keys' in dataA ? dataA.lang_keys : {};
-        let b_lang_keys = 'lang_keys' in dataB ? dataB.lang_keys : {};
-        foreach (const k in a_lang_keys) {
-            if (!(k in b_lang_keys)) {
-                result.match = false;
-                result.diff.lang_keys.missingB.push(k);
-            } else {
-                let ok = true;
-                foreach (const sk of [ 'section', 'help', 'token_replace', 'markdown_allowed' ]) {
-                    if (a_lang_keys[k][sk] !== b_lang_keys[k][sk]) {
-                        ok = false;
-                    }
-                }
-                if (!ok) {
-                    result.match = false;
-                    result.diff.lang_keys.diff.push({
-                        key: k,
-                        a_version: a_lang_keys[k],
-                        b_version: b_lang_keys[k];
-                    });
-                }
-            }
-        }
-        foreach (const k in b_lang_keys) {
-            if (!(k in a_lang_keys)) {
-                result.match = false;
-                result.diff.lang_keys.missingA.push(k);
-            }
-        }
+        const langKeys = util.makeSection(dataA, dataB, 'lang_keys');
+        const lkNames = [ 'section', 'help', 'token_replace', 'markdown_allowed' ];
+        result.diff.lang_keys = util.compareSpec(langKeys.a, langKeys.b, lkNames);
 
         // lang_en
-        let a_lang_en = 'lang_en' in dataA ? dataA.lang_en : {};
-        let b_lang_en = 'lang_en' in dataB ? dataB.lang_en : {};
-        foreach (const k in a_lang_en) {
-            if (!(k in b_lang_en)) {
-                result.match = false;
-                result.diff.lang_en.missingB.push(k);
-            } else {
-                if (a_lang_en[k] !== b_lang_en[k]) {
-                    result.match = false;
-                    result.diff.lang_en.diff.push({
-                        key: k,
-                        a_version: a_lang_en[k],
-                        b_version: b_lang_en[k];
-                    });
+        const langEn = util.makeSection(dataA, dataB, 'lang_en');
+        result.diff.lang_en = util.compareSimple(langEn.a, langEn.b);
+
+        // questions
+        const questions = util.makeSection(dataA, dataB, 'questions');
+        const qspec = util.makeSection(questions.a, questions.b, 'spec');
+        const qNames = [ 'full_lang_key', 'title_lang_key', 'help_lang_key', 'layout', 'answers' ];
+        const qCmp = {
+            answers: (secA, secB) => {
+                if (secA.length != secB.length) {
+                    return false;
                 }
+                for (const i = 0; i < secA.length; i++) {
+                    if (secA[i].letter !== secB[i].letter) {
+                        return false;
+                    }
+                    if (secA[i].lang_key !== secB[i].lang_key) {
+                        return false;
+                    }
+                }
+                return true;
             }
-        }
-        foreach (const k in b_lang_en) {
-            if (!(k in a_lang_en)) {
-                result.match = false;
-                result.diff.lang_en.missingA.push(k);
-            }
+        };
+        result.diff.questions = util.compareSpec(qspec.a, qspec.b, qNames, qCmp);
+        const qorder_ok = util.compareSectionOrder(a_questions, b_questions);
+        if (!qorder_ok.match) {
+            result.match = false;
+            result.diff.questions.order_match = false;
+            result.diff.questions.order_diff = qorder_ok.diff;;
         }
 
-        // TODO: questions: {
-        //  order_match: true,
-        //  order_diff: {},
-        //  missingA: [],
-        //  missingB: [],
-        //  diff: [],
-        // },
         // TODO: benefits: {},
         // TODO: conditions: {},
         // TODO: scenarios: {},
