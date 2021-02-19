@@ -2,7 +2,7 @@ var fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const db = require('../../database');
-const util = require('../util');
+const cmp = require('../compare');
 
 class DeployLogic {
 
@@ -446,78 +446,67 @@ class DeployLogic {
         });
     }
 
-    compare (deployA, deployB) {
-        const dataA = JSON.parse(deployA);
-        const dataB = JSON.parse(deployB);
-        let result = {
-            match: true,
-            diff: {
-                lang_keys: {
-                    missingA: [],
-                    missingB: [],
-                    diff: [],
-                },
-                lang_en: {
-                    missingA: [],
-                    missingB: [],
-                    diff: [],
-                },
-                questions: {
-                    order_match: true,
-                    order_diff: {},
-                    missingA: [],
-                    missingB: [],
-                    diff: [],
-                },
-                benefits: {},
-                conditions: {},
-                scenarios: {},
-                resources: {}
-            }
-        };
-
-        // lang keys 
-        const langKeys = util.makeSection(dataA, dataB, 'lang_keys');
-        const lkNames = [ 'section', 'help', 'token_replace', 'markdown_allowed' ];
-        result.diff.lang_keys = util.compareSpec(langKeys.a, langKeys.b, lkNames);
-
-        // lang_en
-        const langEn = util.makeSection(dataA, dataB, 'lang_en');
-        result.diff.lang_en = util.compareSimple(langEn.a, langEn.b);
-
-        // questions
-        const questions = util.makeSection(dataA, dataB, 'questions');
-        const qspec = util.makeSection(questions.a, questions.b, 'spec');
-        const qNames = [ 'full_lang_key', 'title_lang_key', 'help_lang_key', 'layout', 'answers' ];
-        const qCmp = {
-            answers: (secA, secB) => {
-                if (secA.length != secB.length) {
-                    return false;
-                }
-                for (const i = 0; i < secA.length; i++) {
-                    if (secA[i].letter !== secB[i].letter) {
-                        return false;
-                    }
-                    if (secA[i].lang_key !== secB[i].lang_key) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        };
-        result.diff.questions = util.compareSpec(qspec.a, qspec.b, qNames, qCmp);
-        const qorder_ok = util.compareSectionOrder(a_questions, b_questions);
-        if (!qorder_ok.match) {
-            result.match = false;
-            result.diff.questions.order_match = false;
-            result.diff.questions.order_diff = qorder_ok.diff;;
-        }
-
-        // TODO: benefits: {},
-        // TODO: conditions: {},
-        // TODO: scenarios: {},
-        // TODO: resources: {}
-
+    compare (dataA, dataB) {
+        const resourceSpec = cmp.specList(true, cmp.specKeyedObject(true, {
+                code: 'simple',
+                text: 'simple',
+                desc: 'simple',
+                link: cmp.specObject(false),
+            }), 'code');
+        const spec = cmp.specKeyedObject(true, {
+            lang_keys: cmp.specObject(true,
+                cmp.specKeyedObject(true, {
+                    section: 'simple',
+                    help: 'simple',
+                    token_replace: 'simple',
+                    markdown_allowed: 'simple'
+                })),
+            lang_en: cmp.specObject(true),
+            questions: cmp.specListedObject(true,
+                cmp.specKeyedObject(true, {
+                    full_lang_key: 'simple',
+                    title_lang_key: 'simple',
+                    help_lang_key: 'simple',
+                    layout: 'simple',
+                    answers: cmp.specList(true,
+                        cmp.specKeyedObject(false, {
+                            letter: 'simple',
+                            lang_key: 'simple'
+                        }))
+                })),
+            benefits: cmp.specListedObject(true,
+                cmp.specKeyedObject(false, {
+                    name: 'simple',
+                    abbreviation: 'simple'
+                })),
+            conditions: cmp.specObject(true,
+                cmp.specList(true,
+                    cmp.specKeyedObject(true, {
+                        name: 'simple',
+                        code: 'simple',
+                        pass: 'simple',
+                        method: 'simple',
+                        outcomes: cmp.specList(true,
+                            cmp.specKeyedObject(false, {
+                                letter: 'simple',
+                                answer: 'simple'
+                            }))
+                    }), 'code')),
+            scenarios: cmp.specObject(true,
+                cmp.specList(true,
+                    cmp.specKeyedObject(true, {
+                        conditions: cmp.specObject(false),
+                        help: 'simple',
+                        enabled: 'simple',
+                        lang_key_result: 'simple',
+                        lang_key_expanded: 'simple'
+                    }), 'lang_key_result')),
+            resources: cmp.specKeyedObject(true, {
+                benefits: cmp.specObject(true, resourceSpec),
+                other: resourceSpec
+            })
+        });
+        return spec.diff(dataA, dataB);
     }
 
     async prep_version (json) {
@@ -673,6 +662,48 @@ class DeployLogic {
             archive.append(buf, { name: file + '.json' });
         }
         return archive;
+    }
+
+    async compareVersions(a_vnum, b_vnum) {
+        let jsonA = null;
+        if (a_vnum === 'admin') {
+            jsonA = await this.collapse_version();
+        } else {
+            const sth1 = await db.query(
+                `SELECT data FROM deployments WHERE version_num = $1`,
+                [ a_vnum ]
+            );
+            if (sth1.rows.length < 1) {
+                return { ok: false, data: { code: 'NOT_FOUND', status: 404 } };
+            }
+            jsonA = sth1.rows[0].data;
+        }
+
+        let jsonB = null;
+        if (b_vnum === 'admin') {
+            jsonB = await this.collapse_version();
+        } else {
+            const sth2 = await db.query(
+                `SELECT data FROM deployments WHERE version_num = $1`,
+                [ b_vnum ]
+            );
+            if (sth2.rows.length < 1) {
+                return { ok: false, data: { code: 'NOT_FOUND', status: 404 } };
+            }
+            jsonB = sth2.rows[0].data;
+        }
+
+        const dataA = JSON.parse(jsonA);
+        const dataB = JSON.parse(jsonB);
+        const diff = this.compare(dataA, dataB);
+        return {
+            ok: true,
+            data: {
+                comparison: diff,
+                a: { vnum: a_vnum, full: dataA },
+                b: { vnum: b_vnum, full: dataB }
+            }
+        };
     }
 
 }
