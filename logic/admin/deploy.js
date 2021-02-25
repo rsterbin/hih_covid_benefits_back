@@ -472,7 +472,7 @@ class DeployLogic {
                         cmp.specKeyedObject(false, {
                             letter: 'simple',
                             lang_key: 'simple'
-                        }))
+                        }), 'letter')
                 })),
             benefits: cmp.specListedObject(true,
                 cmp.specKeyedObject(false, {
