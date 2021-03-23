@@ -245,7 +245,10 @@ class CompareList extends CompareSpec {
         if (dataA.length != dataB.length) {
             return false;
         }
-        for (const i = 0; i < dataA.length; i++) {
+        for (let i = 0; i < dataA.length; i++) {
+            if (dataB[i] === undefined) {
+                return false;
+            }
             if (this.itemSpec instanceof CompareSpec) {
                 if (!this.itemSpec.match(dataA[i], dataB[i])) {
                     return false;
@@ -254,6 +257,11 @@ class CompareList extends CompareSpec {
                 if (dataA[i] !== dataB[i]) {
                     return false;
                 }
+            }
+        }
+        for (let i = 0; i < dataB.length; i++) {
+            if (dataA[i] === undefined) {
+                return false;
             }
         }
         return true;
@@ -271,6 +279,14 @@ class CompareList extends CompareSpec {
         let result = { match: true, diff: [] };
 
         for (let i = 0; i < dataA.length; i++) {
+            if (dataB[i] === undefined) {
+                result.match = false;
+                result.diff.push({
+                    a_version: dataA[i],
+                    b_version: null,
+                    index: i
+                });
+            }
             if (this.itemSpec instanceof CompareSpec) {
                 if (this.itemSpec.storeDiff) {
                     const diff = this.itemSpec.diff(dataA[i], dataB[i]);
@@ -297,6 +313,17 @@ class CompareList extends CompareSpec {
                         index: i
                     });
                 }
+            }
+        }
+
+        for (let i = 0; i < dataB.length; i++) {
+            if (dataA[i] === undefined) {
+                result.match = false;
+                result.diff.push({
+                    a_version: null,
+                    b_version: dataB[i],
+                    index: i
+                });
             }
         }
 
@@ -400,7 +427,13 @@ class CompareListedObject extends CompareSpec {
         let result = this.dataSpec.diff(spec.a, spec.b);
         const order_ok = this.orderSpec.diff(order.a, order.b);
         result.order_match = order_ok.match;
-        result.order_diff = order_ok.diff;
+        result.order_diff = {
+            a_version: order.a,
+            b_version: order.b
+        };
+        if (this.orderSpec.storeDiff) {
+            result.order_diff.complex_diff = order_ok.diff;
+        }
         if (!order_ok) {
             result.match = false;
         }
