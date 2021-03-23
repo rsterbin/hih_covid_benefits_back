@@ -364,7 +364,7 @@ class CompareList extends CompareSpec {
                 code_map.a[pcode] = 0;
             }
             code_map.a[pcode]++;
-            result.a.order.push[code];
+            result.a.order.push(code);
             result.a.spec[code] = item;
         }
         for (const item of listB) {
@@ -381,7 +381,7 @@ class CompareList extends CompareSpec {
                 code_map.b[pcode] = 0;
             }
             code_map.b[pcode]++;
-            result.b.order.push[code];
+            result.b.order.push(code);
             result.b.spec[code] = item;
         }
         return result;
