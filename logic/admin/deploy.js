@@ -500,7 +500,7 @@ class DeployLogic {
                         enabled: 'simple',
                         lang_key_result: 'simple',
                         lang_key_expanded: 'simple'
-                    }), 'lang_key_result')),
+                    }), 'lang_key_result', null, false)),
             resources: cmp.specKeyedObject(true, {
                 benefits: cmp.specObject(true, resourceSpec),
                 other: resourceSpec

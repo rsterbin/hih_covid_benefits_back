@@ -11,13 +11,13 @@ class Compare {
         return this.wrapSpec(spec, storeDiff);
     }
 
-    specList(storeDiff = false, itemSpec = null, pkey = false, orderSpec = null) {
-        const spec = new CompareList(itemSpec, pkey, orderSpec);
+    specList(storeDiff = false, itemSpec = null, pkey = false, orderSpec = null, doOrderDiff = true) {
+        const spec = new CompareList(itemSpec, pkey, orderSpec, doOrderDiff);
         return this.wrapSpec(spec, storeDiff);
     }
 
-    specListedObject(storeDiff = false, itemSpec = null, orderSpec = null) {
-        const spec = new CompareListedObject(itemSpec, orderSpec);
+    specListedObject(storeDiff = false, itemSpec = null, orderSpec = null, doOrderDiff = true) {
+        const spec = new CompareListedObject(itemSpec, orderSpec, doOrderDiff);
         return this.wrapSpec(spec, storeDiff);
     }
 
@@ -227,15 +227,17 @@ class CompareKeyedObject extends CompareSpec {
 
 class CompareList extends CompareSpec {
 
-    constructor(itemSpec = null, pkey = false, orderSpec = null) {
+    constructor(itemSpec = null, pkey = false, orderSpec = null, doOrderDiff = true) {
         super();
         this.pkey = pkey;
         this.itemSpec = itemSpec;
+        this.orderSpec = orderSpec;
+        this.doOrderDiff = doOrderDiff;
     }
 
     init() {
         if (this.pkey) {
-            this.mirrorSpec = this.parent.specListedObject(this.storeDiff, this.itemSpec, this.orderSpec);
+            this.mirrorSpec = this.parent.specListedObject(this.storeDiff, this.itemSpec, this.orderSpec, this.doOrderDiff);
         }
     }
 
@@ -389,10 +391,11 @@ class CompareList extends CompareSpec {
 
 class CompareListedObject extends CompareSpec {
 
-    constructor(itemSpec = null, orderSpec = null) {
+    constructor(itemSpec = null, orderSpec = null, doOrderDiff = true) {
         super();
         this.itemSpec = itemSpec;
         this.orderSpec = orderSpec;
+        this.doOrderDiff = doOrderDiff;
     }
 
     init() {
@@ -425,17 +428,19 @@ class CompareListedObject extends CompareSpec {
         const spec = this.parent.makeSection(dataA, dataB, 'spec');
         const order = this.parent.makeList(dataA, dataB, 'order');
         let result = this.dataSpec.diff(spec.a, spec.b);
-        const order_ok = this.orderSpec.diff(order.a, order.b);
-        result.order_match = order_ok.match;
-        result.order_diff = {
-            a_version: order.a,
-            b_version: order.b
-        };
-        if (this.orderSpec.storeDiff) {
-            result.order_diff.complex_diff = order_ok.diff;
-        }
-        if (!order_ok) {
-            result.match = false;
+        if (this.doOrderDiff) {
+            const order_ok = this.orderSpec.diff(order.a, order.b);
+            result.order_match = order_ok.match;
+            result.order_diff = {
+                a_version: order.a,
+                b_version: order.b
+            };
+            if (this.orderSpec.storeDiff) {
+                result.order_diff.complex_diff = order_ok.diff;
+            }
+            if (!order_ok) {
+                result.match = false;
+            }
         }
         if (this.logDiff) {
             console.log(this.logDiff, result);
