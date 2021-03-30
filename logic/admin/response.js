@@ -105,6 +105,24 @@ class ResponseLogic {
         return { ok: true, data: { all: all } };
     }
 
+    async getStats(question) {
+        const sth = await db.query(`
+            SELECT answer, count(answer_id) AS num
+            FROM answers
+            WHERE question_code = $1
+            GROUP BY answer`,
+            [ question ]
+        );
+        if (sth.rows.length < 1) {
+            return { ok: false, data: { status: 404, code: 'NOT_FOUND' } };
+        }
+        let info = {};
+        for (const row of sth.rows) {
+            info[row.answer] = row.num;
+        }
+        return { ok: true, data: { stats: info } };
+    }
+
 }
 
 module.exports = new ResponseLogic();
