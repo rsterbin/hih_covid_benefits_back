@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "74a4e4cb1a359750276cbe6359b5122a",
+    "revision": "16bbbb39770d4605959356e3e042abe8",
     "url": "https://www.nydomesticworkbenefits.org/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.nydomesticworkbenefits.org/static/css/2.9de2e04a.chunk.css"
   },
   {
-    "revision": "d8b23b31b7de2c72db2b",
+    "revision": "d74cc7b68bcda6daf3c0",
     "url": "https://www.nydomesticworkbenefits.org/static/css/main.8c6b0cb0.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.nydomesticworkbenefits.org/static/js/2.ab369b0c.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "d8b23b31b7de2c72db2b",
-    "url": "https://www.nydomesticworkbenefits.org/static/js/main.b81c45ef.chunk.js"
+    "revision": "d74cc7b68bcda6daf3c0",
+    "url": "https://www.nydomesticworkbenefits.org/static/js/main.f57b43b5.chunk.js"
   },
   {
     "revision": "40cf7744fe9078c7ec78",
