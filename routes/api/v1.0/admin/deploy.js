@@ -63,6 +63,36 @@ router.post('/info', async function(req, res, next) {
     }
 });
 
+router.post('/compare', async function(req, res, next) {
+    if (typeof(req.body) !== 'object') {
+        res.status(400);
+        res.json({ code: 'NO_DATA', msg: 'No data was provided' });
+        return;
+    }
+    if (!req.body.token) {
+        res.status(403);
+        res.json({ code: 'TOKEN_REQUIRED', msg: 'Token is required' });
+        return;
+    }
+    if (!req.body.a_vnum || !req.body.b_vnum) {
+        res.status(400);
+        res.json({ code: 'IDS_REQUIRED', msg: 'Deploy version numbers are required' });
+        return;
+    }
+    const check = await sessionLogic.checkToken(req.body.token);
+    if (!check.ok) {
+        res.status(check.data.status);
+        res.json({ code: check.data.code, msg: 'Invalid session' });
+    }
+    const diff = await deployLogic.compareVersions(req.body.a_vnum, req.body.b_vnum);
+    if (!diff.ok) {
+        res.status(diff.data.status);
+        res.json({ code: diff.data.code, msg: 'Could not compare deployments' });
+    } else {
+        res.json({ msg: 'Done', data: diff.data });
+    }
+});
+
 // admin/deploy/revert POST: revert to a specific version ID
 router.post('/revert', async function(req, res, next) {
     if (typeof(req.body) !== 'object') {

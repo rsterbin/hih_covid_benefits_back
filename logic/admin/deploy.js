@@ -2,6 +2,7 @@ var fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const db = require('../../database');
+const cmp = require('../compare');
 
 class DeployLogic {
 
@@ -445,6 +446,138 @@ class DeployLogic {
         });
     }
 
+    compare (dataA, dataB) {
+
+        const resourceSpec = cmp.specList({
+            storeDiff: true,
+            pkey: 'code',
+            itemSpec: cmp.specKeyedObject({
+                storeDiff: true,
+                keyMap: {
+                    code: 'simple',
+                    text: 'simple',
+                    desc: 'simple',
+                    link: cmp.specObject({ storeDiff: false }),
+                }
+            })
+        });
+
+        const spec = cmp.specKeyedObject({
+            storeDiff: true,
+            keyMap: {
+
+                lang_keys: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: true,
+                        keyMap: {
+                            section: 'simple',
+                            help: 'simple',
+                            token_replace: 'simple',
+                            markdown_allowed: 'simple'
+                        }
+                    })
+                }),
+
+                lang_en: cmp.specObject({ storeDiff: true }),
+
+                questions: cmp.specListedObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: true,
+                        keyMap: {
+                            full_lang_key: 'simple',
+                            title_lang_key: 'simple',
+                            help_lang_key: 'simple',
+                            layout: 'simple',
+                            answers: cmp.specList({
+                                storeDiff: true,
+                                pkey: 'letter',
+                                itemSpec: cmp.specKeyedObject({
+                                    storeDiff: false,
+                                    keyMap: {
+                                        letter: 'simple',
+                                        lang_key: 'simple'
+                                    }
+                                })
+                            })
+                        }
+                    })
+                }),
+
+                benefits: cmp.specListedObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: false,
+                        keyMap: {
+                            name: 'simple',
+                            abbreviation: 'simple'
+                        }
+                    })
+                }),
+
+                conditions: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specList({
+                        storeDiff: true,
+                        pkey: 'code',
+                        itemSpec: cmp.specKeyedObject({
+                            storeDiff: true,
+                            keyMap: {
+                                name: 'simple',
+                                code: 'simple',
+                                pass: 'simple',
+                                method: 'simple',
+                                outcomes: cmp.specList({
+                                    storeDiff: true,
+                                    itemSpec: cmp.specKeyedObject({
+                                        storeDiff: false,
+                                        keyMap: {
+                                            letter: 'simple',
+                                            answer: 'simple'
+                                        }
+                                    })
+                                })
+                            }
+                        })
+                    })
+                }),
+
+                scenarios: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specList({
+                        storeDiff: true,
+                        pkey: 'lang_key_result',
+                        doOrderDiff: false,
+                        itemSpec: cmp.specKeyedObject({
+                            storeDiff: true,
+                            keyMap: {
+                                conditions: cmp.specObject({ storeDiff: false }),
+                                help: 'simple',
+                                enabled: 'simple',
+                                lang_key_result: 'simple',
+                                lang_key_expanded: 'simple'
+                            }
+                        })
+                    })
+                }),
+
+                resources: cmp.specKeyedObject({
+                    storeDiff: true,
+                    keyMap: {
+                        benefits: cmp.specObject({
+                            storeDiff: true,
+                            itemSpec: resourceSpec
+                        }),
+                        other: resourceSpec
+                    }
+                })
+
+            }
+        });
+        return spec.diff(dataA, dataB);
+    }
+
     async prep_version (json) {
         const version_uuid = uuidv4();
         const sth = await db.query(`
@@ -598,6 +731,48 @@ class DeployLogic {
             archive.append(buf, { name: file + '.json' });
         }
         return archive;
+    }
+
+    async compareVersions(a_vnum, b_vnum) {
+        let jsonA = null;
+        if (a_vnum === 'admin') {
+            jsonA = await this.collapse_version();
+        } else {
+            const sth1 = await db.query(
+                `SELECT data FROM deployments WHERE version_num = $1`,
+                [ a_vnum ]
+            );
+            if (sth1.rows.length < 1) {
+                return { ok: false, data: { code: 'NOT_FOUND', status: 404 } };
+            }
+            jsonA = sth1.rows[0].data;
+        }
+
+        let jsonB = null;
+        if (b_vnum === 'admin') {
+            jsonB = await this.collapse_version();
+        } else {
+            const sth2 = await db.query(
+                `SELECT data FROM deployments WHERE version_num = $1`,
+                [ b_vnum ]
+            );
+            if (sth2.rows.length < 1) {
+                return { ok: false, data: { code: 'NOT_FOUND', status: 404 } };
+            }
+            jsonB = sth2.rows[0].data;
+        }
+
+        const dataA = JSON.parse(jsonA);
+        const dataB = JSON.parse(jsonB);
+        const diff = this.compare(dataA, dataB);
+        return {
+            ok: true,
+            data: {
+                comparison: diff,
+                a: { vnum: a_vnum, full: dataA },
+                b: { vnum: b_vnum, full: dataB }
+            }
+        };
     }
 
 }
