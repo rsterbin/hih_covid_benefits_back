@@ -1,4 +1,6 @@
 
+// TODO: if the same key is missing on both sides of a keyed object, it should match, not have a diff with two nulls
+
 class Compare {
 
     stdDefaults = {
@@ -7,41 +9,41 @@ class Compare {
     };
 
     specObject(args = {}) {
-        const defaults = Object.assign(this.stdDefaults, {
+        const defaults = { ...this.stdDefaults,
             itemSpec: null,
-        });
+        };
         const opts = Object.assign(defaults, args);
         const spec = new CompareObject(opts.itemSpec);
         return this.wrapSpec(spec, opts);
     }
 
     specKeyedObject(args = {}) {
-        const defaults = Object.assign(this.stdDefaults, {
+        const defaults = { ...this.stdDefaults,
             keyMap: {},
-        });
+        };
         const opts = Object.assign(defaults, args);
         const spec = new CompareKeyedObject(opts.keyMap);
         return this.wrapSpec(spec, opts);
     }
 
     specList(args = {}) {
-        const defaults = Object.assign(this.stdDefaults, {
+        const defaults = { ...this.stdDefaults,
             itemSpec: null,
             pkey: false,
             orderSpec: null,
-            doOrderDiff: true
-        });
+            doOrderDiff: true,
+        };
         const opts = Object.assign(defaults, args);
         const spec = new CompareList(opts.itemSpec, opts.pkey, opts.orderSpec, opts.doOrderDiff);
         return this.wrapSpec(spec, opts);
     }
 
     specListedObject(args = {}) {
-        const defaults = Object.assign(this.stdDefaults, {
+        const defaults = { ...this.stdDefaults,
             itemSpec: null,
             orderSpec: null,
-            doOrderDiff: true
-        });
+            doOrderDiff: true,
+        };
         const opts = Object.assign(defaults, args);
         const spec = new CompareListedObject(opts.itemSpec, opts.orderSpec, opts.doOrderDiff);
         return this.wrapSpec(spec, opts);
@@ -247,17 +249,21 @@ class CompareKeyedObject extends CompareSpec {
                         };
                     }
                 } else if (k in dataA && !(k in dataB)) {
-                    match = false;
-                    diff = {
-                        a_version: dataA[k],
-                        b_version: null,
-                    };
+                    if (dataA[k] !== null) {
+                        match = false;
+                        diff = {
+                            a_version: dataA[k],
+                            b_version: null,
+                        };
+                    }
                 } else if (!(k in dataA) && k in dataB) {
-                    match = false;
-                    diff = {
-                        a_version: null,
-                        b_version: dataB[k],
-                    };
+                    if (dataB[k] !== null) {
+                        match = false;
+                        diff = {
+                            a_version: null,
+                            b_version: dataB[k],
+                        };
+                    }
                 }
                 if (!match) {
                     result.match = false;
