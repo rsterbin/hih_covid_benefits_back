@@ -1,28 +1,55 @@
 
 class Compare {
 
-    specObject(storeDiff = false, itemSpec = null) {
-        const spec = new CompareObject(itemSpec);
-        return this.wrapSpec(spec, storeDiff);
+    stdDefaults = {
+        storeDiff: false,
+        logDiff: null,
+    };
+
+    specObject(args = {}) {
+        const defaults = Object.assign(this.stdDefaults, {
+            itemSpec: null,
+        });
+        const opts = Object.assign(defaults, args);
+        const spec = new CompareObject(opts.itemSpec);
+        return this.wrapSpec(spec, opts);
     }
 
-    specKeyedObject(storeDiff = false, keyMap = {}) {
-        const spec = new CompareKeyedObject(keyMap);
-        return this.wrapSpec(spec, storeDiff);
+    specKeyedObject(args = {}) {
+        const defaults = Object.assign(this.stdDefaults, {
+            keyMap: {},
+        });
+        const opts = Object.assign(defaults, args);
+        const spec = new CompareKeyedObject(opts.keyMap);
+        return this.wrapSpec(spec, opts);
     }
 
-    specList(storeDiff = false, itemSpec = null, pkey = false, orderSpec = null, doOrderDiff = true) {
-        const spec = new CompareList(itemSpec, pkey, orderSpec, doOrderDiff);
-        return this.wrapSpec(spec, storeDiff);
+    specList(args = {}) {
+        const defaults = Object.assign(this.stdDefaults, {
+            itemSpec: null,
+            pkey: false,
+            orderSpec: null,
+            doOrderDiff: true
+        });
+        const opts = Object.assign(defaults, args);
+        const spec = new CompareList(opts.itemSpec, opts.pkey, opts.orderSpec, opts.doOrderDiff);
+        return this.wrapSpec(spec, opts);
     }
 
-    specListedObject(storeDiff = false, itemSpec = null, orderSpec = null, doOrderDiff = true) {
-        const spec = new CompareListedObject(itemSpec, orderSpec, doOrderDiff);
-        return this.wrapSpec(spec, storeDiff);
+    specListedObject(args = {}) {
+        const defaults = Object.assign(this.stdDefaults, {
+            itemSpec: null,
+            orderSpec: null,
+            doOrderDiff: true
+        });
+        const opts = Object.assign(defaults, args);
+        const spec = new CompareListedObject(opts.itemSpec, opts.orderSpec, opts.doOrderDiff);
+        return this.wrapSpec(spec, opts);
     }
 
-    wrapSpec(spec, storeDiff = false) {
-        spec.storeDiff = storeDiff;
+    wrapSpec(spec, opts) {
+        spec.storeDiff = opts.storeDiff;
+        spec.logDiff = opts.logDiff;
         spec.parent = this;
         spec.init();
         return spec;
@@ -209,12 +236,32 @@ class CompareKeyedObject extends CompareSpec {
                     }
                 }
             } else {
-                if (!dataA[k] === dataB[k]) {
-                    result.match = false;
-                    result.diff[k] = {
+                let diff = {};
+                let match = true;
+                if (k in dataA && k in dataB) {
+                    if (!dataA[k] === dataB[k]) {
+                        match = false;
+                        diff = {
+                            a_version: dataA[k],
+                            b_version: dataB[k],
+                        };
+                    }
+                } else if (k in dataA && !(k in dataB)) {
+                    match = false;
+                    diff = {
                         a_version: dataA[k],
+                        b_version: null,
+                    };
+                } else if (!(k in dataA) && k in dataB) {
+                    match = false;
+                    diff = {
+                        a_version: null,
                         b_version: dataB[k],
                     };
+                }
+                if (!match) {
+                    result.match = false;
+                    result.diff[k] = diff;
                 }
             }
         }
@@ -237,7 +284,12 @@ class CompareList extends CompareSpec {
 
     init() {
         if (this.pkey) {
-            this.mirrorSpec = this.parent.specListedObject(this.storeDiff, this.itemSpec, this.orderSpec, this.doOrderDiff);
+            this.mirrorSpec = this.parent.specListedObject({
+                storeDiff: this.storeDiff,
+                itemSpec: this.itemSpec,
+                orderSpec: this.orderSpec,
+                doOrderDiff: this.doOrderDiff
+            });
         }
     }
 
@@ -400,12 +452,12 @@ class CompareListedObject extends CompareSpec {
 
     init() {
         if (!(this.orderSpec instanceof CompareSpec)) {
-            this.orderSpec = this.parent.specList(false);
+            this.orderSpec = this.parent.specList({ storeDiff: false });
         }
         if (!(this.itemSpec instanceof CompareSpec)) {
-            this.itemSpec = this.parent.specObject(true);
+            this.itemSpec = this.parent.specObject({ storeDiff: true });
         }
-        this.dataSpec = this.parent.specObject(true, this.itemSpec);
+        this.dataSpec = this.parent.specObject({ storeDiff: true , itemSpec: this.itemSpec });
     }
 
     match(dataA, dataB) {

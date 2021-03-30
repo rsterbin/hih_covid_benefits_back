@@ -447,64 +447,133 @@ class DeployLogic {
     }
 
     compare (dataA, dataB) {
-        const resourceSpec = cmp.specList(true, cmp.specKeyedObject(true, {
-                code: 'simple',
-                text: 'simple',
-                desc: 'simple',
-                link: cmp.specObject(false),
-            }), 'code');
-        const spec = cmp.specKeyedObject(true, {
-            lang_keys: cmp.specObject(true,
-                cmp.specKeyedObject(true, {
-                    section: 'simple',
-                    help: 'simple',
-                    token_replace: 'simple',
-                    markdown_allowed: 'simple'
-                })),
-            lang_en: cmp.specObject(true),
-            questions: cmp.specListedObject(true,
-                cmp.specKeyedObject(true, {
-                    full_lang_key: 'simple',
-                    title_lang_key: 'simple',
-                    help_lang_key: 'simple',
-                    layout: 'simple',
-                    answers: cmp.specList(true,
-                        cmp.specKeyedObject(false, {
-                            letter: 'simple',
-                            lang_key: 'simple'
-                        }), 'letter')
-                })),
-            benefits: cmp.specListedObject(true,
-                cmp.specKeyedObject(false, {
-                    name: 'simple',
-                    abbreviation: 'simple'
-                })),
-            conditions: cmp.specObject(true,
-                cmp.specList(true,
-                    cmp.specKeyedObject(true, {
-                        name: 'simple',
-                        code: 'simple',
-                        pass: 'simple',
-                        method: 'simple',
-                        outcomes: cmp.specList(true,
-                            cmp.specKeyedObject(false, {
-                                letter: 'simple',
-                                answer: 'simple'
-                            }))
-                    }), 'code')),
-            scenarios: cmp.specObject(true,
-                cmp.specList(true,
-                    cmp.specKeyedObject(true, {
-                        conditions: cmp.specObject(false),
-                        help: 'simple',
-                        enabled: 'simple',
-                        lang_key_result: 'simple',
-                        lang_key_expanded: 'simple'
-                    }), 'lang_key_result', null, false)),
-            resources: cmp.specKeyedObject(true, {
-                benefits: cmp.specObject(true, resourceSpec),
-                other: resourceSpec
+
+        const resourceSpec = cmp.specList({
+            storeDiff: true,
+            pkey: 'code',
+            itemSpec: cmp.specKeyedObject({
+                storeDiff: true,
+                keyMap: {
+                    code: 'simple',
+                    text: 'simple',
+                    desc: 'simple',
+                    link: cmp.specObject({ storeDiff: false }),
+                }
             })
+        });
+
+        const spec = cmp.specKeyedObject({
+            storeDiff: true,
+            keyMap: {
+
+                lang_keys: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: true,
+                        keyMap: {
+                            section: 'simple',
+                            help: 'simple',
+                            token_replace: 'simple',
+                            markdown_allowed: 'simple'
+                        }
+                    })
+                }),
+
+                lang_en: cmp.specObject({ storeDiff: true }),
+
+                questions: cmp.specListedObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: true,
+                        keyMap: {
+                            full_lang_key: 'simple',
+                            title_lang_key: 'simple',
+                            help_lang_key: 'simple',
+                            layout: 'simple',
+                            answers: cmp.specList({
+                                storeDiff: true,
+                                pkey: 'letter',
+                                itemSpec: cmp.specKeyedObject({
+                                    storeDiff: false,
+                                    keyMap: {
+                                        letter: 'simple',
+                                        lang_key: 'simple'
+                                    }
+                                })
+                            })
+                        }
+                    })
+                }),
+
+                benefits: cmp.specListedObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specKeyedObject({
+                        storeDiff: false,
+                        keyMap: {
+                            name: 'simple',
+                            abbreviation: 'simple'
+                        }
+                    })
+                }),
+
+                conditions: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specList({
+                        storeDiff: true,
+                        pkey: 'code',
+                        itemSpec: cmp.specKeyedObject({
+                            storeDiff: true,
+                            keyMap: {
+                                name: 'simple',
+                                code: 'simple',
+                                pass: 'simple',
+                                method: 'simple',
+                                outcomes: cmp.specList({
+                                    storeDiff: true,
+                                    itemSpec: cmp.specKeyedObject({
+                                        storeDiff: false,
+                                        keyMap: {
+                                            letter: 'simple',
+                                            answer: 'simple'
+                                        }
+                                    })
+                                })
+                            }
+                        })
+                    })
+                }),
+
+                scenarios: cmp.specObject({
+                    storeDiff: true,
+                    itemSpec: cmp.specList({
+                        storeDiff: true,
+                        pkey: 'lang_key_result',
+                        doOrderDiff: false,
+                        itemSpec: cmp.specKeyedObject({
+                            storeDiff: true,
+                            keyMap: {
+                                conditions: cmp.specObject({ storeDiff: false }),
+                                help: 'simple',
+                                enabled: 'simple',
+                                lang_key_result: 'simple',
+                                lang_key_expanded: 'simple'
+                            }
+                        })
+                    })
+                }),
+
+                resources: cmp.specKeyedObject({
+                    storeDiff: true,
+                    keyMap: {
+                        benefits: cmp.specObject({
+                            storeDiff: true,
+                            itemSpec: resourceSpec
+                        }),
+                        other: resourceSpec
+                    }
+                })
+
+            }
         });
         return spec.diff(dataA, dataB);
     }
