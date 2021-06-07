@@ -1,6 +1,4 @@
 
-// TODO: if the same key is missing on both sides of a keyed object, it should match, not have a diff with two nulls
-
 class Compare {
 
     stdDefaults = {
